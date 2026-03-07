@@ -299,3 +299,45 @@ After running migrations, test:
 2. Insert a test session
 3. Insert test participants
 4. Verify RLS policies work correctly
+
+## Facilitator Allowlist
+
+Only pre-approved emails can access the facilitator dashboard. This is enforced in the auth callback.
+
+### Create Facilitators Table
+
+```sql
+CREATE TABLE facilitators (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email TEXT UNIQUE NOT NULL,
+  name TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE facilitators ENABLE ROW LEVEL SECURITY;
+
+-- Allow authenticated users to check if their own email is approved
+CREATE POLICY "Check own facilitator status"
+  ON facilitators FOR SELECT
+  TO authenticated
+  USING (auth.email() = email);
+```
+
+### Add Approved Facilitators
+
+```sql
+INSERT INTO facilitators (email, name) VALUES
+  ('facilitator@example.com', 'Facilitator Name');
+```
+
+To add more facilitators later:
+
+```sql
+INSERT INTO facilitators (email, name) VALUES ('another@example.com', 'Another Name');
+```
+
+To remove a facilitator:
+
+```sql
+DELETE FROM facilitators WHERE email = 'facilitator@example.com';
+```

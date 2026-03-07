@@ -1,0 +1,31 @@
+/* Print styles for QR code page */
+@media print {
+  /* Hide controls */
+  button {
+    display: none !important;
+  }
+
+  /* Hide mock indicator */
+  .bg-yellow-50 {
+    display: none !important;
+  }
+
+  /* Optimize for printing */
+  body {
+    background: white !important;
+  }
+
+  /* Center QR code on page */
+  .min-h-screen {
+    min-height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Make QR code larger for printing */
+  svg {
+    width: 500px !important;
+    height: 500px !important;
+  }
+}
