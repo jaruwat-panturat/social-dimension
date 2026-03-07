@@ -17,7 +17,7 @@ interface Participant {
   registered_at: string
 }
 
-const MIN_PARTICIPANTS = 5
+const MIN_PARTICIPANTS = 2
 
 export default function SessionMain({
   sessionId,

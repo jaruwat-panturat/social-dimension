@@ -18,7 +18,7 @@ export default async function RegisterPage({
 
   if (error || !session) notFound()
 
-  const isOpen = session.status === 'created' || session.status === 'registration_open'
+  const isClosed = session.status === 'closed'
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-indigo-600 to-indigo-800 flex flex-col">
@@ -31,19 +31,13 @@ export default async function RegisterPage({
 
       {/* Card */}
       <div className="flex-1 bg-white rounded-t-3xl px-6 pt-8 pb-10">
-        {!isOpen ? (
+        {isClosed ? (
           <div className="text-center py-12">
             <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4 text-3xl">
-              {session.status === 'started' ? '🚀' : '🔒'}
+              🔒
             </div>
-            <h2 className="text-xl font-bold text-gray-900 mb-2">
-              {session.status === 'started' ? 'Session has started' : 'Session is closed'}
-            </h2>
-            <p className="text-gray-400 text-sm">
-              {session.status === 'started'
-                ? 'Registration is no longer open.'
-                : 'This session has ended.'}
-            </p>
+            <h2 className="text-xl font-bold text-gray-900 mb-2">Session is closed</h2>
+            <p className="text-gray-400 text-sm">This session has ended.</p>
           </div>
         ) : (
           <RegisterForm session={session} />

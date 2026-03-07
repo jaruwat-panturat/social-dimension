@@ -326,6 +326,60 @@ All people need to register by just puting their name as free text. (similar to 
 - Allow participants to skip themselves or select themselves
 - Weighted scoring for 1st/2nd/3rd choices
 
+## Implementation Status
+
+Tracks what has been built and any implementation-specific decisions made during development.
+
+### Implemented
+
+#### Session Creation & Management
+- Facilitator dashboard listing all sessions (`/dashboard`)
+- Create new session with custom name (`/dashboard/new`)
+- Session status stepper: Registration Open → Started → Closed
+- Rename session inline on the session page
+- Start session blocked if: zero questions added, or fewer than 5 participants registered
+- Close session via "Close Session" button in Session Controls
+
+#### QR Code
+- Full-screen QR code page at `/session/[sessionId]/qr` (projectable)
+- Registration link displayed and copyable on the session page
+
+#### Participant Registration (`/register/[sessionId]`)
+- Name-only registration, no account required
+- Participant identity persisted in `localStorage` keyed by session ID
+- Registered participants can rename themselves before the session starts
+- Real-time status: page detects session start via Supabase Realtime (no reload needed)
+- If session already started and participant is **not** registered: shows "Session has started" message
+- If session is `closed`: static "Session is closed" screen (server-rendered)
+
+#### Question Management
+- Add, edit, delete questions on the session page
+- Questions ordered by `order_index`
+- Questions cannot be modified once session status is `started`
+
+#### Participant Assessment (Feature — March 2026)
+- Implemented in `src/app/register/[sessionId]/AnswerQuestions.tsx`
+- Triggered automatically when session status transitions to `started` (via Supabase Realtime subscription on the `sessions` table — zero page reload required)
+- **One question at a time** with a progress bar showing completion
+- **Ordered selection**: participants pick 1st, 2nd, 3rd choices in sequence
+  - Clicking a participant assigns the next available rank
+  - Clicking a ranked participant removes them (remaining ranks shift up)
+  - Badge on each card shows "1st", "2nd", or "3rd"
+  - Instructional text updates per step: "Pick your 1st choice" → "2nd" → "3rd"
+- Answer options = all registered participants **excluding the answering participant**
+- Answers stored in `public.answers` table: `selected_participant_1` = 1st choice, `selected_participant_2` = 2nd, `selected_participant_3` = 3rd
+- **Resume support**: on page load, already-answered questions are fetched and skipped; participant resumes from the first unanswered question
+- After all questions answered: "All done!" completion screen
+
+### Pending / Not Yet Implemented
+- Question template library (Feature #8)
+- Answer review & editing after submission (Feature #10)
+- Completion tracking for facilitator — who has/hasn't submitted (Feature #11)
+- Results: 2D sociometric matrix (Feature #12)
+- Results: Relationship network graph (Feature #13)
+
+---
+
 ## Out of Scope
 - Complex user profiles or social features
 - Payment processing

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import AnswerQuestions from './AnswerQuestions'
 
 interface Session {
   id: string
@@ -15,11 +16,12 @@ export default function RegisterForm({ session }: { session: Session }) {
   const [name, setName] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [registered, setRegistered] = useState(false)
+  const [participantId, setParticipantId] = useState<string | null>(null)
   const [participantName, setParticipantName] = useState('')
   const [renaming, setRenaming] = useState(false)
   const [renameValue, setRenameValue] = useState('')
   const [renameError, setRenameError] = useState<string | null>(null)
+  const [sessionStatus, setSessionStatus] = useState(session.status)
 
   useEffect(() => {
     const storedId = localStorage.getItem(storageKey(session.id))
@@ -37,13 +39,38 @@ export default function RegisterForm({ session }: { session: Session }) {
       .single()
       .then(({ data }) => {
         if (data) {
+          setParticipantId(data.id)
           setParticipantName(data.name)
-          setRegistered(true)
         } else {
           localStorage.removeItem(storageKey(session.id))
         }
         setLoading(false)
       })
+  }, [session.id])
+
+  // Listen for session status changes in real-time
+  useEffect(() => {
+    const supabase = createClient()
+    const channel = supabase
+      .channel(`session-status-${session.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'sessions',
+          filter: `id=eq.${session.id}`,
+        },
+        (payload) => {
+          const newStatus = (payload.new as { status?: string }).status
+          if (newStatus) setSessionStatus(newStatus)
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
   }, [session.id])
 
   async function handleSubmit(e: React.FormEvent) {
@@ -68,17 +95,9 @@ export default function RegisterForm({ session }: { session: Session }) {
     }
 
     localStorage.setItem(storageKey(session.id), data.id)
+    setParticipantId(data.id)
     setParticipantName(trimmed)
-    setRegistered(true)
     setLoading(false)
-  }
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-16">
-        <div className="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
-      </div>
-    )
   }
 
   async function handleRename(e: React.FormEvent) {
@@ -117,22 +136,77 @@ export default function RegisterForm({ session }: { session: Session }) {
     setLoading(false)
   }
 
-  if (registered) {
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <div className="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
+      </div>
+    )
+  }
+
+  // Session started + registered -> show answering UI
+  if (sessionStatus === 'started' && participantId) {
+    return (
+      <AnswerQuestions
+        sessionId={session.id}
+        participantId={participantId}
+        participantName={participantName}
+      />
+    )
+  }
+
+  // Session started but not registered
+  if (sessionStatus === 'started') {
+    return (
+      <div className="text-center py-12">
+        <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4 text-3xl">
+          🚀
+        </div>
+        <h2 className="text-xl font-bold text-gray-900 mb-2">Session has started</h2>
+        <p className="text-gray-400 text-sm">Registration is no longer open.</p>
+      </div>
+    )
+  }
+
+  // Session closed
+  if (sessionStatus === 'closed') {
+    return (
+      <div className="text-center py-12">
+        <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4 text-3xl">
+          🔒
+        </div>
+        <h2 className="text-xl font-bold text-gray-900 mb-2">Session is closed</h2>
+        <p className="text-gray-400 text-sm">This session has ended.</p>
+      </div>
+    )
+  }
+
+  // Registered, waiting for session to start
+  if (participantId) {
     return (
       <div className="text-center py-6">
         <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-5">
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="36"
+            height="36"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#16a34a"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <polyline points="20 6 9 17 4 12" />
           </svg>
         </div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-1">You're in!</h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-1">You&apos;re in!</h2>
 
         {renaming ? (
           <form onSubmit={handleRename} className="flex items-center justify-center gap-2 mb-8">
             <input
               value={renameValue}
-              onChange={e => setRenameValue(e.target.value)}
-              onKeyDown={e => e.key === 'Escape' && setRenaming(false)}
+              onChange={(e) => setRenameValue(e.target.value)}
+              onKeyDown={(e) => e.key === 'Escape' && setRenaming(false)}
               className="text-center text-base font-semibold border-2 border-indigo-400 rounded-xl px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-300"
               autoFocus
             />
@@ -148,8 +222,18 @@ export default function RegisterForm({ session }: { session: Session }) {
               onClick={() => setRenaming(false)}
               className="text-gray-400 hover:text-gray-600 px-1 transition-colors"
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
               </svg>
             </button>
           </form>
@@ -159,11 +243,23 @@ export default function RegisterForm({ session }: { session: Session }) {
               Welcome, <span className="font-semibold text-gray-800">{participantName}</span>
             </p>
             <button
-              onClick={() => { setRenameValue(participantName); setRenaming(true) }}
+              onClick={() => {
+                setRenameValue(participantName)
+                setRenaming(true)
+              }}
               className="text-gray-300 hover:text-indigo-500 transition-colors"
               title="Change your name"
             >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
               </svg>
@@ -185,6 +281,7 @@ export default function RegisterForm({ session }: { session: Session }) {
     )
   }
 
+  // Not registered, registration open
   return (
     <form onSubmit={handleSubmit}>
       <h2 className="text-xl font-bold text-gray-900 mb-1">Join the session</h2>
