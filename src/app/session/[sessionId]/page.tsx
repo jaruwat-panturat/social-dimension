@@ -3,6 +3,8 @@ import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import RenameSession from './RenameSession'
 import QuestionsPanel from './QuestionsPanel'
+import SessionControls from './SessionControls'
+import ParticipantsList from './ParticipantsList'
 
 const STEPS = [
   { key: 'created', label: 'Draft' },
@@ -34,6 +36,12 @@ export default async function SessionPage({
     .select('id, question_text, order_index')
     .eq('session_id', sessionId)
     .order('order_index', { ascending: true })
+
+  const { data: participants } = await supabase
+    .from('participants')
+    .select('id, name, registered_at')
+    .eq('session_id', sessionId)
+    .order('registered_at', { ascending: true })
 
   const currentStep = STEPS.findIndex(s => s.key === session.status)
   const registrationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/register/${session.id}`
@@ -109,20 +117,14 @@ export default async function SessionPage({
           <QuestionsPanel sessionId={session.id} initialQuestions={questions ?? []} />
         </div>
 
+        {/* Participants */}
+        <div className="bg-white rounded-2xl border border-gray-200 p-6">
+          <ParticipantsList sessionId={session.id} initialParticipants={participants ?? []} />
+        </div>
+
         {/* Controls */}
         <div className="bg-white rounded-2xl border border-gray-200 p-6">
-          <h2 className="font-semibold text-gray-900 mb-4">Session Controls</h2>
-          <div className="flex flex-wrap gap-3">
-            <button disabled className="bg-blue-600 text-white font-semibold px-4 py-2.5 rounded-xl opacity-40 cursor-not-allowed text-sm">
-              Open Registration
-            </button>
-            <button disabled className="bg-green-600 text-white font-semibold px-4 py-2.5 rounded-xl opacity-40 cursor-not-allowed text-sm">
-              Start Session
-            </button>
-            <button disabled className="bg-red-500 text-white font-semibold px-4 py-2.5 rounded-xl opacity-40 cursor-not-allowed text-sm">
-              Close Session
-            </button>
-          </div>
+          <SessionControls sessionId={session.id} initialStatus={session.status} />
         </div>
 
       </div>

@@ -42,6 +42,19 @@ export async function updateQuestion(questionId: string, text: string) {
     .eq('id', questionId)
 }
 
+export async function updateSessionStatus(sessionId: string, status: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Unauthorized')
+
+  await supabase
+    .from('sessions')
+    .update({ status })
+    .eq('id', sessionId)
+
+  revalidatePath(`/session/${sessionId}`)
+}
+
 export async function deleteQuestion(questionId: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
