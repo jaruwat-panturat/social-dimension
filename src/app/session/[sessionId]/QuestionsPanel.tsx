@@ -10,7 +10,7 @@ interface Question {
   order_index: number
 }
 
-export default function QuestionsPanel({ sessionId, initialQuestions }: { sessionId: string; initialQuestions: Question[] }) {
+export default function QuestionsPanel({ sessionId, initialQuestions, onCountChange }: { sessionId: string; initialQuestions: Question[]; onCountChange?: (count: number) => void }) {
   const [questions, setQuestions] = useState(initialQuestions)
   const [newText, setNewText] = useState('')
   const [showInput, setShowInput] = useState(false)
@@ -32,7 +32,11 @@ export default function QuestionsPanel({ sessionId, initialQuestions }: { sessio
 
     setBusy(true)
     const question = await addQuestion(sessionId, text, questions.length) as Question
-    setQuestions(prev => [...prev, question])
+    setQuestions(prev => {
+      const next = [...prev, question]
+      onCountChange?.(next.length)
+      return next
+    })
     setNewText('')
     setBusy(false)
     addInputRef.current?.focus()
@@ -63,7 +67,11 @@ export default function QuestionsPanel({ sessionId, initialQuestions }: { sessio
   async function handleDelete(id: string) {
     setBusy(true)
     setDeletingId(id)
-    setQuestions(prev => prev.filter(q => q.id !== id))
+    setQuestions(prev => {
+      const next = prev.filter(q => q.id !== id)
+      onCountChange?.(next.length)
+      return next
+    })
     await deleteQuestion(id)
     setDeletingId(null)
     setBusy(false)

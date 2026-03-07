@@ -9,7 +9,7 @@ interface Participant {
   registered_at: string
 }
 
-export default function ParticipantsList({ sessionId, initialParticipants }: { sessionId: string; initialParticipants: Participant[] }) {
+export default function ParticipantsList({ sessionId, initialParticipants, onCountChange }: { sessionId: string; initialParticipants: Participant[]; onCountChange?: (count: number) => void }) {
   const [participants, setParticipants] = useState(initialParticipants)
   const [newIds, setNewIds] = useState<Set<string>>(new Set())
 
@@ -30,7 +30,9 @@ export default function ParticipantsList({ sessionId, initialParticipants }: { s
           const p = payload.new as Participant
           setParticipants(prev => {
             if (prev.some(x => x.id === p.id)) return prev
-            return [...prev, p]
+            const next = [...prev, p]
+            onCountChange?.(next.length)
+            return next
           })
           setNewIds(prev => new Set(prev).add(p.id))
           setTimeout(() => {

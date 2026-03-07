@@ -2,9 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import RenameSession from './RenameSession'
-import QuestionsPanel from './QuestionsPanel'
-import SessionControls from './SessionControls'
-import ParticipantsList from './ParticipantsList'
+import SessionMain from './SessionMain'
 
 const STEPS = [
   { key: 'registration_open', label: 'Registration' },
@@ -111,20 +109,13 @@ export default async function SessionPage({
           </div>
         </div>
 
-        {/* Questions */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-6">
-          <QuestionsPanel sessionId={session.id} initialQuestions={questions ?? []} />
-        </div>
-
-        {/* Participants */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-6">
-          <ParticipantsList sessionId={session.id} initialParticipants={participants ?? []} />
-        </div>
-
-        {/* Controls */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-6">
-          <SessionControls sessionId={session.id} initialStatus={session.status} questionCount={questions?.length ?? 0} />
-        </div>
+        {/* Participants + Questions + Controls (shared state) */}
+        <SessionMain
+          sessionId={session.id}
+          initialQuestions={questions ?? []}
+          initialParticipants={participants ?? []}
+          initialStatus={session.status}
+        />
 
       </div>
     </div>

@@ -15,12 +15,12 @@ const TRANSITIONS: Record<string, { label: string; next: string; color: string }
   closed: [],
 }
 
-export default function SessionControls({ sessionId, initialStatus, questionCount }: { sessionId: string; initialStatus: string; questionCount: number }) {
+export default function SessionControls({ sessionId, initialStatus, questionCount, participantCount, minParticipants }: { sessionId: string; initialStatus: string; questionCount: number; participantCount: number; minParticipants: number }) {
   const [status, setStatus] = useState(initialStatus)
   const [busy, setBusy] = useState(false)
 
   const actions = TRANSITIONS[status] ?? []
-  const canStart = questionCount > 0
+  const canStart = questionCount > 0 && participantCount >= minParticipants
 
   async function handleTransition(next: string) {
     setBusy(true)
@@ -49,7 +49,13 @@ export default function SessionControls({ sessionId, initialStatus, questionCoun
                   {label}
                 </button>
                 {blocked && (
-                  <span className="text-xs text-amber-600 font-medium">Add at least one question first</span>
+                  <span className="text-xs text-amber-600 font-medium">
+                    {questionCount === 0 && participantCount < minParticipants
+                      ? `Need ${minParticipants} participants and at least 1 question`
+                      : questionCount === 0
+                      ? 'Add at least one question first'
+                      : `Need ${minParticipants - participantCount} more participant${minParticipants - participantCount > 1 ? 's' : ''}`}
+                  </span>
                 )}
               </div>
             )
