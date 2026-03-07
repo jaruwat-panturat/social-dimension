@@ -13,7 +13,7 @@ export async function createSession(formData: FormData) {
 
   const { data, error } = await supabase
     .from('sessions')
-    .insert({ name, facilitator_id: user.id, status: 'created' })
+    .insert({ name, facilitator_id: user.id, status: 'registration_open' })
     .select('id')
     .single()
 

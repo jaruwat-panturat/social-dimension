@@ -7,7 +7,6 @@ import SessionControls from './SessionControls'
 import ParticipantsList from './ParticipantsList'
 
 const STEPS = [
-  { key: 'created', label: 'Draft' },
   { key: 'registration_open', label: 'Registration' },
   { key: 'started', label: 'In Progress' },
   { key: 'closed', label: 'Closed' },
@@ -124,7 +123,7 @@ export default async function SessionPage({
 
         {/* Controls */}
         <div className="bg-white rounded-2xl border border-gray-200 p-6">
-          <SessionControls sessionId={session.id} initialStatus={session.status} />
+          <SessionControls sessionId={session.id} initialStatus={session.status} questionCount={questions?.length ?? 0} />
         </div>
 
       </div>
