@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
 interface Session {
@@ -9,12 +9,39 @@ interface Session {
   status: string
 }
 
+const storageKey = (sessionId: string) => `participant_${sessionId}`
+
 export default function RegisterForm({ session }: { session: Session }) {
   const [name, setName] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [registered, setRegistered] = useState(false)
   const [participantName, setParticipantName] = useState('')
+
+  useEffect(() => {
+    const storedId = localStorage.getItem(storageKey(session.id))
+    if (!storedId) {
+      setLoading(false)
+      return
+    }
+
+    const supabase = createClient()
+    supabase
+      .from('participants')
+      .select('id, name')
+      .eq('id', storedId)
+      .eq('session_id', session.id)
+      .single()
+      .then(({ data }) => {
+        if (data) {
+          setParticipantName(data.name)
+          setRegistered(true)
+        } else {
+          localStorage.removeItem(storageKey(session.id))
+        }
+        setLoading(false)
+      })
+  }, [session.id])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -37,10 +64,18 @@ export default function RegisterForm({ session }: { session: Session }) {
       return
     }
 
-    localStorage.setItem(`participant_${session.id}`, data.id)
+    localStorage.setItem(storageKey(session.id), data.id)
     setParticipantName(trimmed)
     setRegistered(true)
     setLoading(false)
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <div className="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
+      </div>
+    )
   }
 
   if (registered) {
