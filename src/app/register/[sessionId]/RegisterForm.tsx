@@ -17,6 +17,9 @@ export default function RegisterForm({ session }: { session: Session }) {
   const [error, setError] = useState<string | null>(null)
   const [registered, setRegistered] = useState(false)
   const [participantName, setParticipantName] = useState('')
+  const [renaming, setRenaming] = useState(false)
+  const [renameValue, setRenameValue] = useState('')
+  const [renameError, setRenameError] = useState<string | null>(null)
 
   useEffect(() => {
     const storedId = localStorage.getItem(storageKey(session.id))
@@ -78,6 +81,42 @@ export default function RegisterForm({ session }: { session: Session }) {
     )
   }
 
+  async function handleRename(e: React.FormEvent) {
+    e.preventDefault()
+    const trimmed = renameValue.trim()
+    if (!trimmed || trimmed === participantName) {
+      setRenaming(false)
+      return
+    }
+
+    setLoading(true)
+    setRenameError(null)
+
+    const storedId = localStorage.getItem(storageKey(session.id))
+    if (!storedId) {
+      setRenaming(false)
+      setLoading(false)
+      return
+    }
+
+    const supabase = createClient()
+    const { error: updateError } = await supabase
+      .from('participants')
+      .update({ name: trimmed })
+      .eq('id', storedId)
+      .eq('session_id', session.id)
+
+    if (updateError) {
+      setRenameError('Could not update name. Please try again.')
+      setLoading(false)
+      return
+    }
+
+    setParticipantName(trimmed)
+    setRenaming(false)
+    setLoading(false)
+  }
+
   if (registered) {
     return (
       <div className="text-center py-6">
@@ -87,9 +126,57 @@ export default function RegisterForm({ session }: { session: Session }) {
           </svg>
         </div>
         <h2 className="text-2xl font-bold text-gray-900 mb-1">You're in!</h2>
-        <p className="text-gray-500 mb-8">
-          Welcome, <span className="font-semibold text-gray-800">{participantName}</span>
-        </p>
+
+        {renaming ? (
+          <form onSubmit={handleRename} className="flex items-center justify-center gap-2 mb-8">
+            <input
+              value={renameValue}
+              onChange={e => setRenameValue(e.target.value)}
+              onKeyDown={e => e.key === 'Escape' && setRenaming(false)}
+              className="text-center text-base font-semibold border-2 border-indigo-400 rounded-xl px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+              autoFocus
+            />
+            <button
+              type="submit"
+              disabled={loading || !renameValue.trim()}
+              className="text-xs bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-200 disabled:text-gray-400 text-white font-semibold px-3 py-1.5 rounded-xl transition-colors"
+            >
+              Save
+            </button>
+            <button
+              type="button"
+              onClick={() => setRenaming(false)}
+              className="text-gray-400 hover:text-gray-600 px-1 transition-colors"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          </form>
+        ) : (
+          <div className="flex items-center justify-center gap-2 mb-8">
+            <p className="text-gray-500">
+              Welcome, <span className="font-semibold text-gray-800">{participantName}</span>
+            </p>
+            <button
+              onClick={() => { setRenameValue(participantName); setRenaming(true) }}
+              className="text-gray-300 hover:text-indigo-500 transition-colors"
+              title="Change your name"
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+              </svg>
+            </button>
+          </div>
+        )}
+
+        {renameError && (
+          <div className="mb-4 bg-red-50 border border-red-100 text-red-600 text-sm rounded-xl px-4 py-3">
+            {renameError}
+          </div>
+        )}
+
         <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 text-sm text-indigo-700">
           <p className="font-medium mb-0.5">Keep this page open</p>
           <p className="text-indigo-400 text-xs">The facilitator will start the session shortly</p>

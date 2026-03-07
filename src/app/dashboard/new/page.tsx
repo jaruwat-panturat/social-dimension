@@ -1,15 +1,24 @@
-import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
+'use client'
+
+import { useState } from 'react'
 import Link from 'next/link'
 import { createSession } from '../actions'
+import LoadingOverlay from '@/components/LoadingOverlay'
 
-export default async function NewSessionPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/')
+export default function NewSessionPage() {
+  const [loading, setLoading] = useState(false)
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    const formData = new FormData(e.currentTarget)
+    setLoading(true)
+    await createSession(formData)
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
+      {loading && <LoadingOverlay />}
+
       {/* Header */}
       <header className="bg-white border-b border-gray-200">
         <div className="max-w-4xl mx-auto px-6 flex items-center gap-3 py-4">
@@ -29,7 +38,7 @@ export default async function NewSessionPage() {
           <h1 className="text-xl font-bold text-gray-900 mb-1">Create a new session</h1>
           <p className="text-sm text-gray-400 mb-8">Give your workshop session a name</p>
 
-          <form action={createSession}>
+          <form onSubmit={handleSubmit}>
             <div className="mb-6">
               <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
                 Session name
@@ -54,7 +63,8 @@ export default async function NewSessionPage() {
               </Link>
               <button
                 type="submit"
-                className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-xl text-sm transition-colors"
+                disabled={loading}
+                className="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-semibold py-3 px-4 rounded-xl text-sm transition-colors"
               >
                 Create Session
               </button>
