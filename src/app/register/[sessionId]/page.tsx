@@ -16,31 +16,30 @@ export default async function RegisterPage({
     .eq('id', sessionId)
     .single()
 
-  if (error || !session) {
-    notFound()
-  }
+  if (error || !session) notFound()
 
   const isOpen = session.status === 'created' || session.status === 'registration_open'
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 mb-1">{session.name}</h1>
-          <p className="text-gray-500 text-sm">Social Dimension Workshop</p>
-        </div>
+    <main className="min-h-screen bg-gradient-to-b from-indigo-600 to-indigo-800 flex flex-col">
+      {/* Top brand bar */}
+      <div className="px-6 pt-8 pb-6 text-center">
+        <p className="text-indigo-200 text-xs font-medium uppercase tracking-widest mb-3">Social Dimension</p>
+        <h1 className="text-2xl font-bold text-white">{session.name}</h1>
+        <p className="text-indigo-200 text-sm mt-1">Workshop Session</p>
+      </div>
 
+      {/* Card */}
+      <div className="flex-1 bg-white rounded-t-3xl px-6 pt-8 pb-10">
         {!isOpen ? (
-          <div className="text-center py-6">
-            <div className="text-4xl mb-4">
+          <div className="text-center py-12">
+            <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4 text-3xl">
               {session.status === 'started' ? '🚀' : '🔒'}
             </div>
-            <h2 className="text-xl font-semibold text-gray-800 mb-2">
-              {session.status === 'started'
-                ? 'Session has started'
-                : 'Session is closed'}
+            <h2 className="text-xl font-bold text-gray-900 mb-2">
+              {session.status === 'started' ? 'Session has started' : 'Session is closed'}
             </h2>
-            <p className="text-gray-500 text-sm">
+            <p className="text-gray-400 text-sm">
               {session.status === 'started'
                 ? 'Registration is no longer open.'
                 : 'This session has ended.'}

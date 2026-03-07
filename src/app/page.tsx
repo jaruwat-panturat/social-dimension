@@ -9,46 +9,44 @@ export default async function Home({
 }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-
-  if (user) {
-    redirect('/dashboard')
-  }
+  if (user) redirect('/dashboard')
 
   const { error } = await searchParams
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl p-12 max-w-md w-full text-center">
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">
-          Social Dimension
-        </h1>
-        <p className="text-gray-500 mb-10">
-          Psychology workshop tool for social assessment
-        </p>
-
-        {error === 'auth' && (
-          <div className="mb-6 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3">
-            You are not authorized to access this app.
+    <main className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+      <div className="w-full max-w-sm">
+        {/* Logo */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-indigo-500 mb-4">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="5" r="2" />
+              <circle cx="5" cy="19" r="2" />
+              <circle cx="19" cy="19" r="2" />
+              <line x1="12" y1="7" x2="5" y2="17" />
+              <line x1="12" y1="7" x2="19" y2="17" />
+              <line x1="7" y1="19" x2="17" y2="19" />
+            </svg>
           </div>
-        )}
+          <h1 className="text-2xl font-bold text-white">Social Dimension</h1>
+          <p className="text-slate-400 text-sm mt-1">Psychology workshop assessment tool</p>
+        </div>
 
-        <div className="mb-8">
-          <p className="text-sm text-gray-500 mb-3">Facilitator access</p>
+        {/* Card */}
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+          {error === 'unauthorized' && (
+            <div className="mb-4 bg-red-500/10 border border-red-500/20 text-red-400 text-sm rounded-xl px-4 py-3">
+              Your account is not authorized to access this app.
+            </div>
+          )}
+          {error === 'auth' && (
+            <div className="mb-4 bg-red-500/10 border border-red-500/20 text-red-400 text-sm rounded-xl px-4 py-3">
+              Sign-in failed. Please try again.
+            </div>
+          )}
+
+          <p className="text-slate-400 text-sm mb-4 text-center">Facilitator sign in</p>
           <SignInButton />
-        </div>
-
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-left">
-          <h3 className="font-semibold text-blue-900 mb-2">What is this?</h3>
-          <ul className="text-blue-800 space-y-1">
-            <li>• Register participants via QR code</li>
-            <li>• Answer questions about peers</li>
-            <li>• Visualize social dynamics</li>
-            <li>• Designed for psychology workshops</li>
-          </ul>
-        </div>
-
-        <div className="mt-6 text-xs text-gray-400">
-          Built with Next.js + Supabase + Tailwind
         </div>
       </div>
     </main>

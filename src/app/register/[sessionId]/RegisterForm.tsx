@@ -37,9 +37,7 @@ export default function RegisterForm({ session }: { session: Session }) {
       return
     }
 
-    // Store participant ID so they can answer questions later
     localStorage.setItem(`participant_${session.id}`, data.id)
-
     setParticipantName(trimmed)
     setRegistered(true)
     setLoading(false)
@@ -47,14 +45,19 @@ export default function RegisterForm({ session }: { session: Session }) {
 
   if (registered) {
     return (
-      <div className="text-center">
-        <div className="text-6xl mb-4">✓</div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">You're in!</h2>
-        <p className="text-gray-600 mb-6">
-          Welcome, <span className="font-semibold">{participantName}</span>
+      <div className="text-center py-6">
+        <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-5">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        </div>
+        <h2 className="text-2xl font-bold text-gray-900 mb-1">You're in!</h2>
+        <p className="text-gray-500 mb-8">
+          Welcome, <span className="font-semibold text-gray-800">{participantName}</span>
         </p>
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800">
-          Keep this page open. The facilitator will start the session shortly.
+        <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 text-sm text-indigo-700">
+          <p className="font-medium mb-0.5">Keep this page open</p>
+          <p className="text-indigo-400 text-xs">The facilitator will start the session shortly</p>
         </div>
       </div>
     )
@@ -62,32 +65,34 @@ export default function RegisterForm({ session }: { session: Session }) {
 
   return (
     <form onSubmit={handleSubmit}>
-      <div className="mb-6">
-        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-          Your name
-        </label>
+      <h2 className="text-xl font-bold text-gray-900 mb-1">Join the session</h2>
+      <p className="text-sm text-gray-400 mb-8">Enter your name to register</p>
+
+      <div className="mb-5">
         <input
           id="name"
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Enter your name"
+          placeholder="Your full name"
           autoFocus
           required
-          className="w-full px-4 py-4 text-lg border-2 border-gray-300 rounded-xl focus:outline-none focus:border-indigo-500 transition-colors"
+          className="w-full px-4 py-4 text-lg border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-indigo-500 transition-colors placeholder-gray-300"
         />
       </div>
 
       {error && (
-        <p className="text-red-600 text-sm mb-4">{error}</p>
+        <div className="mb-4 bg-red-50 border border-red-100 text-red-600 text-sm rounded-xl px-4 py-3">
+          {error}
+        </div>
       )}
 
       <button
         type="submit"
         disabled={loading || !name.trim()}
-        className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-xl text-lg transition-colors"
+        className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 rounded-2xl text-base transition-colors"
       >
-        {loading ? 'Registering...' : 'Join Session'}
+        {loading ? 'Joining...' : 'Join Session'}
       </button>
     </form>
   )
