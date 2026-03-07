@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
+import RenameSession from './RenameSession'
 
 const STEPS = [
   { key: 'created', label: 'Draft' },
@@ -23,7 +24,6 @@ export default async function SessionPage({
     .from('sessions')
     .select('id, name, status, created_at')
     .eq('id', sessionId)
-    .eq('facilitator_id', user.id)
     .single()
 
   if (error || !session) notFound()
@@ -42,7 +42,7 @@ export default async function SessionPage({
             </svg>
           </Link>
           <span className="text-gray-200">|</span>
-          <h1 className="font-semibold text-gray-900 text-sm truncate">{session.name}</h1>
+          <RenameSession sessionId={session.id} initialName={session.name} />
         </div>
       </header>
 
