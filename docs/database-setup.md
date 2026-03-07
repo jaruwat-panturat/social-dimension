@@ -341,3 +341,58 @@ To remove a facilitator:
 ```sql
 DELETE FROM facilitators WHERE email = 'facilitator@example.com';
 ```
+
+## Applied Migrations
+
+### Migration 1 — Sessions access: 1-to-many → many-to-many
+
+Originally sessions were owned by a single facilitator via `facilitator_id` and RLS restricted each facilitator to their own sessions. This was changed so **all facilitators can see and manage all sessions**. The `facilitator_id` column is kept as a `created_by` audit field but is no longer used as an access gate.
+
+```sql
+-- Drop old per-facilitator policies
+drop policy if exists "Facilitators can view own sessions" on sessions;
+drop policy if exists "Facilitators can create sessions" on sessions;
+drop policy if exists "Facilitators can update own sessions" on sessions;
+
+-- New policies: any facilitator can access all sessions
+create policy "Facilitators can view all sessions" on sessions
+  for select using (
+    exists (select 1 from facilitators where email = auth.email())
+  );
+
+create policy "Facilitators can insert sessions" on sessions
+  for insert with check (
+    exists (select 1 from facilitators where email = auth.email())
+  );
+
+create policy "Facilitators can update sessions" on sessions
+  for update using (
+    exists (select 1 from facilitators where email = auth.email())
+  );
+```
+
+### Migration 3 — Fix questions and participants RLS policies
+
+The original questions and participants policies used `sessions.facilitator_id = auth.uid()` which broke after Migration 1. Updated to use the `facilitators` table instead.
+
+```sql
+-- Questions: drop old policies, add new ones
+drop policy if exists "Facilitators can view questions in their sessions" on questions;
+drop policy if exists "Facilitators can manage questions in their sessions" on questions;
+drop policy if exists "Participants can view questions in started sessions" on questions;
+
+create policy "Facilitators can select questions" on questions
+  for select using (exists (select 1 from facilitators where email = auth.email()));
+
+create policy "Facilitators can insert questions" on questions
+  for insert with check (exists (select 1 from facilitators where email = auth.email()));
+
+create policy "Facilitators can delete questions" on questions
+  for delete using (exists (select 1 from facilitators where email = auth.email()));
+
+-- Participants: fix facilitator view policy
+drop policy if exists "Facilitators can view participants in their sessions" on participants;
+
+create policy "Facilitators can view participants" on participants
+  for select using (exists (select 1 from facilitators where email = auth.email()));
+```

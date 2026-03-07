@@ -15,3 +15,29 @@ export async function renameSession(sessionId: string, name: string) {
 
   revalidatePath(`/session/${sessionId}`)
 }
+
+export async function addQuestion(sessionId: string, text: string, order: number) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Unauthorized')
+
+  const { data, error } = await supabase
+    .from('questions')
+    .insert({ session_id: sessionId, question_text: text, order_index: order })
+    .select('id, question_text, order_index')
+    .single()
+
+  if (error || !data) throw new Error('Failed to add question')
+  return data
+}
+
+export async function deleteQuestion(questionId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Unauthorized')
+
+  await supabase
+    .from('questions')
+    .delete()
+    .eq('id', questionId)
+}

@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import RenameSession from './RenameSession'
+import QuestionsPanel from './QuestionsPanel'
 
 const STEPS = [
   { key: 'created', label: 'Draft' },
@@ -27,6 +28,12 @@ export default async function SessionPage({
     .single()
 
   if (error || !session) notFound()
+
+  const { data: questions } = await supabase
+    .from('questions')
+    .select('id, question_text, order_index')
+    .eq('session_id', sessionId)
+    .order('order_index', { ascending: true })
 
   const currentStep = STEPS.findIndex(s => s.key === session.status)
   const registrationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/register/${session.id}`
@@ -99,19 +106,7 @@ export default async function SessionPage({
 
         {/* Questions */}
         <div className="bg-white rounded-2xl border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="font-semibold text-gray-900">Questions</h2>
-              <p className="text-xs text-gray-400 mt-0.5">What participants will answer about each other</p>
-            </div>
-            <button disabled className="text-sm bg-gray-100 text-gray-400 font-medium px-3 py-2 rounded-lg cursor-not-allowed">
-              + Add
-            </button>
-          </div>
-          <div className="text-center py-8">
-            <p className="text-sm font-medium text-gray-400">No questions yet</p>
-            <p className="text-xs mt-0.5 text-gray-300">Coming soon</p>
-          </div>
+          <QuestionsPanel sessionId={session.id} initialQuestions={questions ?? []} />
         </div>
 
         {/* Controls */}
