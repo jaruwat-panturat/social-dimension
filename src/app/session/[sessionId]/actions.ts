@@ -31,6 +31,17 @@ export async function addQuestion(sessionId: string, text: string, order: number
   return data
 }
 
+export async function updateQuestion(questionId: string, text: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Unauthorized')
+
+  await supabase
+    .from('questions')
+    .update({ question_text: text })
+    .eq('id', questionId)
+}
+
 export async function deleteQuestion(questionId: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

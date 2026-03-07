@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { renameSession } from './actions'
+import LoadingOverlay from '@/components/LoadingOverlay'
 
 export default function RenameSession({ sessionId, initialName }: { sessionId: string; initialName: string }) {
   const [editing, setEditing] = useState(false)
@@ -34,16 +35,19 @@ export default function RenameSession({ sessionId, initialName }: { sessionId: s
 
   if (editing) {
     return (
-      <input
-        ref={inputRef}
-        value={name}
-        onChange={e => setName(e.target.value)}
-        onBlur={save}
-        onKeyDown={handleKeyDown}
-        disabled={saving}
-        className="font-semibold text-gray-900 text-sm bg-white border border-indigo-400 rounded-lg px-2 py-0.5 focus:outline-none focus:ring-2 focus:ring-indigo-300 min-w-0 w-48"
-        autoFocus
-      />
+      <>
+        {saving && <LoadingOverlay />}
+        <input
+          ref={inputRef}
+          value={name}
+          onChange={e => setName(e.target.value)}
+          onBlur={save}
+          onKeyDown={handleKeyDown}
+          disabled={saving}
+          className="font-semibold text-gray-900 text-sm bg-white border border-indigo-400 rounded-lg px-2 py-0.5 focus:outline-none focus:ring-2 focus:ring-indigo-300 min-w-0 w-48"
+          autoFocus
+        />
+      </>
     )
   }
 
