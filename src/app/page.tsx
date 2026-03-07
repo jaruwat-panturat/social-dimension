@@ -28,7 +28,7 @@ export default async function Home({
 
         {error === 'auth' && (
           <div className="mb-6 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3">
-            Sign-in failed. Please try again.
+            You are not authorized to access this app.
           </div>
         )}
 
