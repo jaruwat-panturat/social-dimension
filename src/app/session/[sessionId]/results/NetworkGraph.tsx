@@ -223,6 +223,9 @@ export default function NetworkGraph({
     ? new Set(visibleEdges.filter(e => e.from === hoverId || e.to === hoverId).flatMap(e => [e.from, e.to]))
     : null
 
+  // Pre-compute reverse-edge lookup for perpendicular offset
+  const edgeKeySet = new Set(visibleEdges.map(e => `${e.from}→${e.to}`))
+
   // ── Render ────────────────────────────────────────────────────────────
 
   return (
@@ -300,11 +303,27 @@ export default function NetworkGraph({
               const d  = Math.sqrt(dx * dx + dy * dy) || 1
               const ra = nodeRadius(displayPts(a.id))
               const rb = nodeRadius(displayPts(b.id))
-              // Start at source node edge, end leaving room for arrowhead tip at target edge
-              const x1 = a.x + (dx / d) * (ra + 3)
-              const y1 = a.y + (dy / d) * (ra + 3)
-              const x2 = b.x - (dx / d) * (rb + 5)
-              const y2 = b.y - (dy / d) * (rb + 5)
+
+              // Perpendicular offset so bidirectional / parallel edges don't overlap.
+              // Use a CANONICAL direction (smaller-id → larger-id) so the perpendicular
+              // vector is identical for both A→B and B→A. Then flip sign per edge so
+              // they land on opposite sides of the line.
+              const hasBidi = edgeKeySet.has(`${e.to}→${e.from}`)
+              const OFFSET  = hasBidi ? 4 : 2
+              // Canonical direction: always from the node with the smaller id to the larger
+              const canonDx = e.from < e.to ? dx : -dx
+              const canonDy = e.from < e.to ? dy : -dy
+              const canonD  = Math.sqrt(canonDx * canonDx + canonDy * canonDy) || 1
+              const perpX   = -canonDy / canonD  // left of canonical direction
+              const perpY   =  canonDx / canonD
+              const sign    = e.from < e.to ? 1 : -1
+              const ox = perpX * OFFSET * sign
+              const oy = perpY * OFFSET * sign
+
+              const x1 = a.x + (dx / d) * (ra + 3) + ox
+              const y1 = a.y + (dy / d) * (ra + 3) + oy
+              const x2 = b.x - (dx / d) * (rb + 5) + ox
+              const y2 = b.y - (dy / d) * (rb + 5) + oy
 
               const key = `${e.from}→${e.to}`
               const dim = highlightedEdges ? !highlightedEdges.has(key) : false
