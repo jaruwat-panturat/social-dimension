@@ -109,6 +109,23 @@ export default async function SessionPage({
           </div>
         </div>
 
+        {/* View Results (only when closed) */}
+        {session.status === 'closed' && (
+          <Link
+            href={`/session/${session.id}/results`}
+            className="flex items-center justify-between bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl px-6 py-4 transition-colors"
+          >
+            <div>
+              <p className="font-semibold">Session Results</p>
+              <p className="text-indigo-200 text-xs mt-0.5">View the sociometric matrix</p>
+            </div>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
+            </svg>
+          </Link>
+        )}
+
         {/* Participants + Questions + Controls (shared state) */}
         <SessionMain
           sessionId={session.id}
