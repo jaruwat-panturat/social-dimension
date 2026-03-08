@@ -8,7 +8,7 @@ export default function SessionQRPage() {
   const sessionId = params.sessionId as string;
 
   // Mock session data - will be replaced with real data from Supabase
-  const sessionName = 'Social Dimension Workshop';
+  const sessionName = 'Sociometry Workshop';
   const registrationUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/register/${sessionId}`;
 
   return (

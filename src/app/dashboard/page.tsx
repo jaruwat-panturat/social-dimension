@@ -41,7 +41,7 @@ export default async function DashboardPage() {
                 <line x1="12" y1="7" x2="19" y2="17" />
               </svg>
             </div>
-            <span className="font-semibold text-gray-900">Social Dimension</span>
+            <span className="font-semibold text-gray-900">Sociometry</span>
           </div>
           <div className="flex items-center gap-4 py-4">
             <span className="text-sm text-gray-400 hidden sm:block">{user.email}</span>

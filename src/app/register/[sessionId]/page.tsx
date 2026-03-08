@@ -24,7 +24,7 @@ export default async function RegisterPage({
     <main className="min-h-screen bg-gradient-to-b from-brand-600 to-brand-800 flex flex-col">
       {/* Top brand bar */}
       <div className="px-6 pt-8 pb-6 text-center">
-        <p className="text-brand-200 text-xs font-medium uppercase tracking-widest mb-3">Social Dimension</p>
+        <p className="text-brand-200 text-xs font-medium uppercase tracking-widest mb-3">Sociometry</p>
         <h1 className="text-2xl font-bold text-white">{session.name}</h1>
         <p className="text-brand-200 text-sm mt-1">Workshop Session</p>
       </div>

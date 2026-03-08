@@ -5,7 +5,7 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Social Dimension',
+  title: 'Sociometry',
   description: 'Psychology workshop tool for social dimension assessment',
 }
 

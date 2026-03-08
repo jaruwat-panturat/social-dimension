@@ -28,7 +28,7 @@ export default async function Home({
               <line x1="7" y1="19" x2="17" y2="19" />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-white">Social Dimension</h1>
+          <h1 className="text-2xl font-bold text-white">Sociometry</h1>
           <p className="text-slate-400 text-sm mt-1">Psychology workshop assessment tool</p>
         </div>
 
