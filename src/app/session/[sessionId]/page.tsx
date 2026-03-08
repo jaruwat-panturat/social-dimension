@@ -135,10 +135,12 @@ export default async function SessionPage({
           initialStatus={session.status}
         />
 
-        {/* Danger zone */}
-        <div className="flex items-center justify-end pt-2 pb-6">
-          <DeleteSession sessionId={session.id} sessionName={session.name} />
-        </div>
+        {/* Danger zone — only available once session is closed */}
+        {session.status === 'closed' && (
+          <div className="flex items-center justify-end pt-2 pb-6">
+            <DeleteSession sessionId={session.id} sessionName={session.name} />
+          </div>
+        )}
 
       </div>
     </div>
