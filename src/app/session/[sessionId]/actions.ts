@@ -55,6 +55,18 @@ export async function updateSessionStatus(sessionId: string, status: string) {
   revalidatePath(`/session/${sessionId}`)
 }
 
+export async function reorderQuestions(updates: { id: string; order_index: number }[]) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Unauthorized')
+
+  await Promise.all(
+    updates.map(({ id, order_index }) =>
+      supabase.from('questions').update({ order_index }).eq('id', id)
+    )
+  )
+}
+
 export async function deleteQuestion(questionId: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

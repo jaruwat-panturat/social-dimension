@@ -50,6 +50,7 @@ export default function SessionMain({
           sessionId={sessionId}
           initialQuestions={initialQuestions}
           onCountChange={setQuestionCount}
+          status={initialStatus}
         />
       </div>
 
