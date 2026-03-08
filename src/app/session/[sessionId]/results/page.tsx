@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
-import MatrixView from './MatrixView'
+import ResultsView from './ResultsView'
 
 export type MatrixColumn = {
   id: string
@@ -137,7 +137,7 @@ export default async function ResultsPage({
       </header>
 
       <div className="max-w-6xl mx-auto px-6 py-8">
-        <MatrixView matrices={matrices} />
+        <ResultsView matrices={matrices} />
       </div>
     </div>
   )
