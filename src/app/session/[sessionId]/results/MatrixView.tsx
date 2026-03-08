@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+
 import type { QuestionMatrix } from './page'
 
 const RANK_COLORS: Record<number, string> = {
@@ -18,9 +18,15 @@ const RANK_LABELS: Record<number, string> = {
 // Explicit opaque backgrounds for alternating rows — bg-inherit breaks sticky with opacity classes
 const ROW_BG = ['bg-white', 'bg-gray-50']
 
-export default function MatrixView({ matrices }: { matrices: QuestionMatrix[] }) {
-  const [activeIndex, setActiveIndex] = useState(0)
-
+export default function MatrixView({
+  matrices,
+  activeQId,
+  onChangeQId,
+}: {
+  matrices: QuestionMatrix[]
+  activeQId: string
+  onChangeQId: (qId: string) => void
+}) {
   if (matrices.length === 0) {
     return (
       <div className="text-center py-16 text-gray-400">
@@ -29,6 +35,7 @@ export default function MatrixView({ matrices }: { matrices: QuestionMatrix[] })
     )
   }
 
+  const activeIndex = Math.max(0, matrices.findIndex(m => m.questionId === activeQId))
   const matrix = matrices[activeIndex]
 
   return (
@@ -39,7 +46,7 @@ export default function MatrixView({ matrices }: { matrices: QuestionMatrix[] })
           {matrices.map((m, i) => (
             <button
               key={m.questionId}
-              onClick={() => setActiveIndex(i)}
+              onClick={() => onChangeQId(m.questionId)}
               className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
                 i === activeIndex
                   ? 'bg-indigo-600 text-white'

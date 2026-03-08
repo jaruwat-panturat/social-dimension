@@ -40,9 +40,14 @@ function nodeRadius(pts: number) {
 
 function buildGraph(matrices: QuestionMatrix[]) {
   const pts: Record<string, { name: string; total: number }> = {}
+  // perQ[questionId][participantId] = points for that question
+  const perQ: Record<string, Record<string, number>> = {}
+
   for (const m of matrices) {
+    perQ[m.questionId] = {}
     for (const col of m.columns) {
       pts[col.id] = { name: col.name, total: (pts[col.id]?.total ?? 0) + col.total }
+      perQ[m.questionId][col.id] = col.total
     }
   }
 
@@ -67,27 +72,27 @@ function buildGraph(matrices: QuestionMatrix[]) {
     }
   })
 
-  return { nodes, edges: allEdges }
-}
-
-// When showing all questions, keep only best rank per from→to pair
-function deduplicateEdges(edges: GraphEdge[]): GraphEdge[] {
-  const best = new Map<string, GraphEdge>()
-  for (const e of edges) {
-    const key = `${e.from}→${e.to}`
-    const existing = best.get(key)
-    if (!existing || e.rank < existing.rank) best.set(key, e)
-  }
-  return Array.from(best.values())
+  return { nodes, edges: allEdges, perQ }
 }
 
 // ── Component ─────────────────────────────────────────────────────────────
 
-export default function NetworkGraph({ matrices }: { matrices: QuestionMatrix[] }) {
-  const [filterQId, setFilterQId] = useState<string | 'all'>('all')
+export default function NetworkGraph({
+  matrices,
+  activeQId,
+  onChangeQId,
+}: {
+  matrices: QuestionMatrix[]
+  activeQId: string
+  onChangeQId: (qId: string) => void
+}) {
+  const filterQId = activeQId
+  const setFilterQId = onChangeQId
   const [hoverId, setHoverId] = useState<string | null>(null)
   const [nodes, setNodes] = useState<SimNode[]>([])
   const [edges, setEdges] = useState<GraphEdge[]>([])
+  // perQ[questionId][participantId] = points for that question only
+  const [perQ, setPerQ] = useState<Record<string, Record<string, number>>>({})
 
   const nodesRef = useRef<SimNode[]>([])
   const tickRef  = useRef(0)
@@ -99,10 +104,11 @@ export default function NetworkGraph({ matrices }: { matrices: QuestionMatrix[] 
 
   useEffect(() => {
     if (!matrices.length) return
-    const { nodes: ns, edges: es } = buildGraph(matrices)
+    const { nodes: ns, edges: es, perQ: pq } = buildGraph(matrices)
     nodesRef.current = ns
     tickRef.current = 0
     setEdges(es)
+    setPerQ(pq)
     setNodes([...ns])
   }, [matrices])
 
@@ -113,7 +119,7 @@ export default function NetworkGraph({ matrices }: { matrices: QuestionMatrix[] 
     tickRef.current = 0
     cancelAnimationFrame(rafRef.current)
 
-    const active = filterQId === 'all' ? edges : edges.filter(e => e.questionId === filterQId)
+    const active = edges.filter(e => e.questionId === filterQId)
 
     function tick() {
       if (tickRef.current++ >= 280) return
@@ -202,11 +208,13 @@ export default function NetworkGraph({ matrices }: { matrices: QuestionMatrix[] 
 
   // ── Derived render data ───────────────────────────────────────────────
 
-  const visibleEdges = filterQId === 'all'
-    ? deduplicateEdges(edges)
-    : edges.filter(e => e.questionId === filterQId)
+  const visibleEdges = edges.filter(e => e.questionId === filterQId)
 
   const nodeById = new Map(nodes.map(n => [n.id, n]))
+
+  function displayPts(nodeId: string): number {
+    return perQ[filterQId]?.[nodeId] ?? 0
+  }
 
   const highlightedEdges = hoverId
     ? new Set(visibleEdges.filter(e => e.from === hoverId || e.to === hoverId).map(e => `${e.from}→${e.to}`))
@@ -219,28 +227,35 @@ export default function NetworkGraph({ matrices }: { matrices: QuestionMatrix[] 
 
   return (
     <div>
-      {/* Question filter */}
-      <div className="flex gap-2 mb-4 flex-wrap">
-        <button
-          onClick={() => { setFilterQId('all'); tickRef.current = 0 }}
-          className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
-            filterQId === 'all' ? 'bg-indigo-600 text-white' : 'bg-white border border-gray-200 text-gray-600 hover:border-indigo-300 hover:text-indigo-600'
-          }`}
-        >
-          All questions
-        </button>
-        {matrices.map((m, i) => (
-          <button
-            key={m.questionId}
-            onClick={() => { setFilterQId(m.questionId); tickRef.current = 0 }}
-            className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
-              filterQId === m.questionId ? 'bg-indigo-600 text-white' : 'bg-white border border-gray-200 text-gray-600 hover:border-indigo-300 hover:text-indigo-600'
-            }`}
-          >
-            Q{i + 1}
-          </button>
-        ))}
-      </div>
+      {/* Question tabs */}
+      {matrices.length > 1 && (
+        <div className="flex gap-2 mb-6 flex-wrap">
+          {matrices.map((m, i) => (
+            <button
+              key={m.questionId}
+              onClick={() => { setFilterQId(m.questionId); tickRef.current = 0 }}
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
+                filterQId === m.questionId ? 'bg-indigo-600 text-white' : 'bg-white border border-gray-200 text-gray-600 hover:border-indigo-300 hover:text-indigo-600'
+              }`}
+            >
+              Q{i + 1}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Current question text */}
+      {(() => {
+        const activeMatrix = matrices.find(m => m.questionId === filterQId)
+        const activeIndex  = matrices.findIndex(m => m.questionId === filterQId)
+        if (!activeMatrix) return null
+        return (
+          <div className="mb-6 bg-white rounded-2xl border border-gray-200 px-6 py-4">
+            <p className="text-xs text-gray-400 mb-1">Question {activeIndex + 1}</p>
+            <p className="font-semibold text-gray-900">{activeMatrix.questionText}</p>
+          </div>
+        )
+      })()}
 
       <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
         {/* SVG canvas */}
@@ -283,8 +298,8 @@ export default function NetworkGraph({ matrices }: { matrices: QuestionMatrix[] 
               const s = RANK_STYLE[e.rank]
               const dx = b.x - a.x; const dy = b.y - a.y
               const d  = Math.sqrt(dx * dx + dy * dy) || 1
-              const ra = nodeRadius(a.totalPoints)
-              const rb = nodeRadius(b.totalPoints)
+              const ra = nodeRadius(displayPts(a.id))
+              const rb = nodeRadius(displayPts(b.id))
               // Start at source node edge, end leaving room for arrowhead tip at target edge
               const x1 = a.x + (dx / d) * (ra + 3)
               const y1 = a.y + (dy / d) * (ra + 3)
@@ -310,7 +325,8 @@ export default function NetworkGraph({ matrices }: { matrices: QuestionMatrix[] 
 
             {/* Nodes */}
             {nodes.map(n => {
-              const nr = nodeRadius(n.totalPoints)
+              const dp = displayPts(n.id)
+              const nr = nodeRadius(dp)
               const isHovered = n.id === hoverId
               const dim = highlightedNodes ? !highlightedNodes.has(n.id) : false
 
@@ -323,7 +339,6 @@ export default function NetworkGraph({ matrices }: { matrices: QuestionMatrix[] 
                   onMouseEnter={() => setHoverId(n.id)}
                   onMouseLeave={() => setHoverId(null)}
                 >
-                  {/* Glow ring on hover */}
                   {isHovered && (
                     <circle r={nr + 6} fill="#6366f1" opacity={0.15} />
                   )}
@@ -335,7 +350,7 @@ export default function NetworkGraph({ matrices }: { matrices: QuestionMatrix[] 
                     opacity={dim ? 0.2 : 1}
                     style={{ transition: 'opacity 0.15s, fill 0.1s' }}
                   />
-                  {/* Total points inside bubble */}
+                  {/* Points inside bubble */}
                   <text
                     textAnchor="middle"
                     dominantBaseline="central"
@@ -344,7 +359,7 @@ export default function NetworkGraph({ matrices }: { matrices: QuestionMatrix[] 
                     fontWeight="700"
                     style={{ pointerEvents: 'none', userSelect: 'none' }}
                   >
-                    {n.totalPoints}
+                    {dp}
                   </text>
                   {/* Name below bubble */}
                   <text

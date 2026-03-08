@@ -31,6 +31,7 @@ const VIEWS = [
 
 export default function ResultsView({ matrices }: { matrices: QuestionMatrix[] }) {
   const [view, setView] = useState<'matrix' | 'network'>('matrix')
+  const [activeQId, setActiveQId] = useState<string>(() => matrices[0]?.questionId ?? '')
 
   return (
     <div>
@@ -53,9 +54,9 @@ export default function ResultsView({ matrices }: { matrices: QuestionMatrix[] }
       </div>
 
       {view === 'matrix' ? (
-        <MatrixView matrices={matrices} />
+        <MatrixView matrices={matrices} activeQId={activeQId} onChangeQId={setActiveQId} />
       ) : (
-        <NetworkGraph matrices={matrices} />
+        <NetworkGraph matrices={matrices} activeQId={activeQId} onChangeQId={setActiveQId} />
       )}
     </div>
   )
