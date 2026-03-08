@@ -4,6 +4,7 @@ import Link from 'next/link'
 import RenameSession from './RenameSession'
 import SessionMain from './SessionMain'
 import DeleteSession from './DeleteSession'
+import CopyButton from './CopyButton'
 
 const STEPS = [
   { key: 'registration_open', label: 'Registration' },
@@ -96,9 +97,10 @@ export default async function SessionPage({
             <div className="flex-1 min-w-0">
               <h2 className="font-semibold text-gray-900 mb-1">Registration Link</h2>
               <p className="text-xs text-gray-400 mb-3">Participants scan the QR code or visit this link to join</p>
-              <p className="text-xs font-mono bg-gray-50 border border-gray-200 text-gray-600 px-3 py-2 rounded-lg break-all">
-                {registrationUrl}
-              </p>
+              <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+                <p className="text-xs font-mono text-gray-600 break-all flex-1">{registrationUrl}</p>
+                <CopyButton text={registrationUrl} />
+              </div>
             </div>
             <Link
               href={`/session/${session.id}/qr`}
