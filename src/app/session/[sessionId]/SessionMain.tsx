@@ -40,6 +40,8 @@ export default function SessionMain({
           sessionId={sessionId}
           initialParticipants={initialParticipants}
           onCountChange={setParticipantCount}
+          status={initialStatus}
+          questionCount={questionCount}
         />
       </div>
 
