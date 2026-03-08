@@ -107,6 +107,10 @@ create policy "Anyone can view open sessions" on sessions
   for select using (
     status in ('created', 'registration_open', 'started')
   );
+
+-- Required for Supabase Realtime to send full row data on UPDATE events
+-- (needed so participants receive status changes without page reload)
+alter table sessions replica identity full;
 ```
 
 ---
@@ -148,6 +152,12 @@ create policy "Facilitators can delete questions" on questions
   for delete using (
     exists (select 1 from facilitators where email = auth.email())
   );
+
+-- Participants (anon) need to read questions when answering
+create policy "Anyone can read questions" on questions
+  for select using (true);
+
+alter table questions replica identity full;
 ```
 
 ---
@@ -185,16 +195,67 @@ create policy "Anyone can read participants" on participants
 -- Anyone can update their own participant record (e.g. rename themselves)
 create policy "Participants can update their own name" on participants
   for update using (true) with check (true);
+
+alter table participants replica identity full;
+```
+
+---
+
+### Table: `answers`
+
+Each row is one participant's answer to one question. Ranked picks stored in 3 columns.
+The `(question_id, participant_id)` unique constraint allows upsert for answer editing.
+
+```sql
+create table answers (
+  id uuid primary key default gen_random_uuid(),
+  question_id uuid references questions(id) on delete cascade,
+  participant_id uuid references participants(id) on delete cascade,
+  selected_participant_1 uuid references participants(id),
+  selected_participant_2 uuid references participants(id),
+  selected_participant_3 uuid references participants(id),
+  created_at timestamptz default now(),
+  constraint answers_question_id_participant_id_key unique (question_id, participant_id)
+);
+
+create index idx_answers_question on answers(question_id);
+create index idx_answers_participant on answers(participant_id);
+
+alter table answers enable row level security;
+
+-- Only facilitators (authenticated) can read answers — results are private
+create policy "Facilitators can read answers" on answers
+  for select to authenticated
+  using (true);
+
+-- Participants (anon) submit answers
+create policy "Anyone can insert answers" on answers
+  for insert to anon, authenticated
+  with check (true);
+
+-- Participants can edit a previous answer (upsert requires UPDATE permission)
+create policy "Anyone can update answers" on answers
+  for update to anon, authenticated
+  using (true);
+
+alter table answers replica identity full;
 ```
 
 ---
 
 ### Enable Realtime
 
+All four tables need to be added to the realtime publication. `REPLICA IDENTITY FULL` is required on each table so Supabase can send full row data on UPDATE events (needed for filtered subscriptions).
+
 ```sql
--- Required for live participant list updates on the session page
+-- Add all tables used by realtime subscriptions
+alter publication supabase_realtime add table sessions;
 alter publication supabase_realtime add table participants;
+alter publication supabase_realtime add table questions;
+alter publication supabase_realtime add table answers;
 ```
+
+> **Note:** The `replica identity full` statements are already included in each table's section above. The `alter publication` statements must also be run — they are separate.
 
 ---
 
@@ -203,5 +264,12 @@ alter publication supabase_realtime add table participants;
 After running migrations, verify:
 1. An unauthenticated user can load `/register/[sessionId]` when session status is `registration_open`
 2. An unauthenticated user can insert a participant row
-3. A facilitator (email in `facilitators` table) can log in and see all sessions
-4. Realtime subscription on the session page shows new participants without refresh
+3. An unauthenticated user can read the participants list (needed for answer picker)
+4. An unauthenticated user can read questions for a session (needed for answering)
+5. An unauthenticated user can insert and update rows in `answers`
+6. An unauthenticated user **cannot** SELECT from `answers`
+7. A facilitator (email in `facilitators` table) can log in and see all sessions
+8. A facilitator can SELECT all answers for their session
+9. Realtime — participants list updates live when someone registers
+10. Realtime — participant page auto-transitions to questions when facilitator clicks Start
+11. Realtime — facilitator completion tracker updates live as participants submit answers

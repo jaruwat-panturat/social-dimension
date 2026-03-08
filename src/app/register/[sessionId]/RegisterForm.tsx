@@ -48,9 +48,13 @@ export default function RegisterForm({ session }: { session: Session }) {
       })
   }, [session.id])
 
-  // Listen for session status changes in real-time
+  // Listen for session status changes via realtime + polling fallback
   useEffect(() => {
+    if (sessionStatus === 'started' || sessionStatus === 'closed') return
+
     const supabase = createClient()
+
+    // Realtime (works once RLS policies are applied)
     const channel = supabase
       .channel(`session-status-${session.id}`)
       .on(
@@ -68,10 +72,23 @@ export default function RegisterForm({ session }: { session: Session }) {
       )
       .subscribe()
 
+    // Polling fallback every 4s — catches cases where realtime isn't firing
+    const poll = setInterval(async () => {
+      const { data } = await supabase
+        .from('sessions')
+        .select('status')
+        .eq('id', session.id)
+        .single()
+      if (data?.status && data.status !== sessionStatus) {
+        setSessionStatus(data.status)
+      }
+    }, 4000)
+
     return () => {
       supabase.removeChannel(channel)
+      clearInterval(poll)
     }
-  }, [session.id])
+  }, [session.id, sessionStatus])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -274,8 +291,14 @@ export default function RegisterForm({ session }: { session: Session }) {
         )}
 
         <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 text-sm text-indigo-700">
-          <p className="font-medium mb-0.5">Keep this page open</p>
-          <p className="text-indigo-400 text-xs">The facilitator will start the session shortly</p>
+          <div className="flex items-center justify-center gap-2 mb-1">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500" />
+            </span>
+            <p className="font-medium">Waiting for the session to start</p>
+          </div>
+          <p className="text-indigo-400 text-xs">This page will update automatically</p>
         </div>
       </div>
     )
