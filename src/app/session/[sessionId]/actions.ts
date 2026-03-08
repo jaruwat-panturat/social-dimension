@@ -67,6 +67,32 @@ export async function reorderQuestions(updates: { id: string; order_index: numbe
   )
 }
 
+export async function deleteSession(sessionId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Unauthorized')
+
+  // Get all question IDs for this session
+  const { data: questions } = await supabase
+    .from('questions')
+    .select('id')
+    .eq('session_id', sessionId)
+
+  const questionIds = (questions ?? []).map(q => q.id)
+
+  // Delete answers belonging to those questions
+  if (questionIds.length > 0) {
+    await supabase.from('answers').delete().in('question_id', questionIds)
+  }
+
+  // Delete questions, participants, then session
+  await supabase.from('questions').delete().eq('session_id', sessionId)
+  await supabase.from('participants').delete().eq('session_id', sessionId)
+  await supabase.from('sessions').delete().eq('id', sessionId)
+
+  revalidatePath('/dashboard')
+}
+
 export async function deleteQuestion(questionId: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

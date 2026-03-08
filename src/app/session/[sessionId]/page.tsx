@@ -3,6 +3,7 @@ import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import RenameSession from './RenameSession'
 import SessionMain from './SessionMain'
+import DeleteSession from './DeleteSession'
 
 const STEPS = [
   { key: 'registration_open', label: 'Registration' },
@@ -133,6 +134,11 @@ export default async function SessionPage({
           initialParticipants={participants ?? []}
           initialStatus={session.status}
         />
+
+        {/* Danger zone */}
+        <div className="flex items-center justify-end pt-2 pb-6">
+          <DeleteSession sessionId={session.id} sessionName={session.name} />
+        </div>
 
       </div>
     </div>
