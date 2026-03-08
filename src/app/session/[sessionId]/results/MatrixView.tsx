@@ -69,11 +69,11 @@ export default function MatrixView({
       <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
         {/* Scrollable container — both axes */}
         <div className="overflow-auto max-h-[70vh]">
-          <table className="w-full text-sm border-collapse" style={{ minWidth: `${matrix.columns.length * 80 + 176}px` }}>
+          <table className="w-full text-sm border-collapse" style={{ minWidth: `${matrix.columns.length * 80 + 224}px` }}>
             <thead className="sticky top-0 z-20">
               <tr className="bg-gray-50 border-b border-gray-200">
                 {/* Top-left corner — sticky on both axes */}
-                <th className="sticky left-0 z-30 bg-gray-50 px-4 py-3 text-left font-semibold text-gray-500 text-xs uppercase tracking-wide w-44 min-w-[176px] border-r border-gray-300 shadow-[2px_0_4px_-1px_rgba(0,0,0,0.08)]">
+                <th className="sticky left-0 z-30 bg-gray-50 px-4 py-3 text-left font-semibold text-gray-500 text-xs uppercase tracking-wide w-56 min-w-[224px] border-r border-gray-300 shadow-[2px_0_4px_-1px_rgba(0,0,0,0.08)]">
                   Selector ↓ / Selected →
                 </th>
                 {matrix.columns.map(col => (
