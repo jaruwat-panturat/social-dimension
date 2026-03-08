@@ -359,11 +359,11 @@ export default function NetworkGraph({
                   onMouseLeave={() => setHoverId(null)}
                 >
                   {isHovered && (
-                    <circle r={nr + 6} fill="#6366f1" opacity={0.15} />
+                    <circle r={nr + 6} fill="#e86643" opacity={0.15} />
                   )}
                   <circle
                     r={nr}
-                    fill={isHovered ? '#4338ca' : '#6366f1'}
+                    fill={isHovered ? '#c4502c' : '#e86643'}
                     stroke="white"
                     strokeWidth={isHovered ? 3 : 2}
                     opacity={dim ? 0.2 : 1}
@@ -385,7 +385,7 @@ export default function NetworkGraph({
                     textAnchor="middle"
                     y={nr + 13}
                     fontSize="11"
-                    fill={dim ? '#d1d5db' : isHovered ? '#1e1b4b' : '#374151'}
+                    fill={dim ? '#d1d5db' : isHovered ? '#7a2c11' : '#374151'}
                     fontWeight={isHovered ? '700' : '500'}
                     style={{ pointerEvents: 'none', userSelect: 'none', transition: 'fill 0.15s' }}
                   >
