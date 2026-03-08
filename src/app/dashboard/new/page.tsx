@@ -50,7 +50,7 @@ export default function NewSessionPage() {
                 placeholder="e.g. Team Workshop — March 2026"
                 required
                 autoFocus
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
               />
             </div>
 
@@ -64,7 +64,7 @@ export default function NewSessionPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-semibold py-3 px-4 rounded-xl text-sm transition-colors"
+                className="flex-1 bg-brand-600 hover:bg-brand-700 disabled:bg-brand-400 text-white font-semibold py-3 px-4 rounded-xl text-sm transition-colors"
               >
                 Create Session
               </button>

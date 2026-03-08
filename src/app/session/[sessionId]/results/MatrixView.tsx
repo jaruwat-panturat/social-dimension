@@ -49,8 +49,8 @@ export default function MatrixView({
               onClick={() => onChangeQId(m.questionId)}
               className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
                 i === activeIndex
-                  ? 'bg-indigo-600 text-white'
-                  : 'bg-white border border-gray-200 text-gray-600 hover:border-indigo-300 hover:text-indigo-600'
+                  ? 'bg-brand-600 text-white'
+                  : 'bg-white border border-gray-200 text-gray-600 hover:border-brand-300 hover:text-brand-600'
               }`}
             >
               Q{i + 1}
@@ -82,8 +82,8 @@ export default function MatrixView({
                     className="px-3 py-3 text-center font-semibold text-gray-700 min-w-[80px]"
                   >
                     <div className="flex flex-col items-center gap-1">
-                      <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">
-                        <span className="text-xs font-bold text-indigo-600">
+                      <div className="w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center">
+                        <span className="text-xs font-bold text-brand-600">
                           {col.name.charAt(0).toUpperCase()}
                         </span>
                       </div>
@@ -104,8 +104,8 @@ export default function MatrixView({
                     {/* Locked selector column */}
                     <td className={`sticky left-0 z-10 ${bg} px-4 py-3 font-medium text-gray-800 border-r border-gray-200 shadow-[2px_0_4px_-1px_rgba(0,0,0,0.06)]`}>
                       <div className="flex items-center gap-2 w-40">
-                        <div className="w-6 h-6 rounded-full bg-indigo-100 flex items-center justify-center shrink-0">
-                          <span className="text-xs font-bold text-indigo-600">
+                        <div className="w-6 h-6 rounded-full bg-brand-100 flex items-center justify-center shrink-0">
+                          <span className="text-xs font-bold text-brand-600">
                             {row.participant.name.charAt(0).toUpperCase()}
                           </span>
                         </div>
@@ -182,15 +182,15 @@ export default function MatrixView({
               </tr>
 
               {/* Total points */}
-              <tr className="bg-indigo-50 border-t border-indigo-100">
-                <td className="sticky left-0 z-10 bg-indigo-50 px-4 py-3 text-xs font-bold text-indigo-700 border-r border-gray-200 uppercase tracking-wide shadow-[2px_0_4px_-1px_rgba(0,0,0,0.06)]">
+              <tr className="bg-brand-50 border-t border-brand-100">
+                <td className="sticky left-0 z-10 bg-brand-50 px-4 py-3 text-xs font-bold text-brand-700 border-r border-gray-200 uppercase tracking-wide shadow-[2px_0_4px_-1px_rgba(0,0,0,0.06)]">
                   Total Points
-                  <span className="ml-1 text-indigo-400 font-normal normal-case">(3·2·1)</span>
+                  <span className="ml-1 text-brand-400 font-normal normal-case">(3·2·1)</span>
                 </td>
                 {matrix.columns.map(col => (
                   <td key={col.id} className="px-3 py-3 text-center">
                     <span className={`inline-flex items-center justify-center min-w-[2rem] h-7 px-2 rounded-lg text-sm font-bold ${
-                      col.total > 0 ? 'bg-indigo-600 text-white' : 'text-gray-300'
+                      col.total > 0 ? 'bg-brand-600 text-white' : 'text-gray-300'
                     }`}>
                       {col.total}
                     </span>

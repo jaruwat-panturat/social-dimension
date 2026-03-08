@@ -32,7 +32,7 @@ export default async function DashboardPage() {
       <header className="bg-white border-b border-gray-200">
         <div className="max-w-4xl mx-auto px-6 flex items-center justify-between">
           <div className="flex items-center gap-2 py-4">
-            <div className="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center">
+            <div className="w-7 h-7 rounded-lg bg-brand-600 flex items-center justify-center">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="5" r="2" />
                 <circle cx="5" cy="19" r="2" />
@@ -58,7 +58,7 @@ export default async function DashboardPage() {
           </div>
           <Link
             href="/dashboard/new"
-            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded-xl text-sm transition-colors"
+            className="flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-semibold px-4 py-2 rounded-xl text-sm transition-colors"
           >
             + New Session
           </Link>
@@ -70,7 +70,7 @@ export default async function DashboardPage() {
             <p className="text-sm text-gray-400 mb-6">Create your first session to get started</p>
             <Link
               href="/dashboard/new"
-              className="inline-flex items-center gap-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-5 py-2 rounded-xl text-sm transition-colors"
+              className="inline-flex items-center gap-1 bg-brand-600 hover:bg-brand-700 text-white font-semibold px-5 py-2 rounded-xl text-sm transition-colors"
             >
               + New Session
             </Link>
@@ -81,10 +81,10 @@ export default async function DashboardPage() {
               <Link
                 key={session.id}
                 href={`/session/${session.id}`}
-                className="flex items-center justify-between bg-white rounded-2xl border border-gray-200 hover:border-indigo-300 hover:shadow-sm transition-all group px-6 py-4"
+                className="flex items-center justify-between bg-white rounded-2xl border border-gray-200 hover:border-brand-300 hover:shadow-sm transition-all group px-6 py-4"
               >
                 <div>
-                  <h3 className="font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors">
+                  <h3 className="font-semibold text-gray-900 group-hover:text-brand-600 transition-colors">
                     {session.name}
                   </h3>
                   <p className="text-xs text-gray-400 mt-1">
@@ -95,7 +95,7 @@ export default async function DashboardPage() {
                   <span className={`text-xs font-medium px-3 py-1 rounded-full ${STATUS_COLOR[session.status]}`}>
                     {STATUS_LABEL[session.status]}
                   </span>
-                  <svg className="text-gray-300 group-hover:text-indigo-400 transition-colors" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg className="text-gray-300 group-hover:text-brand-400 transition-colors" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <polyline points="9 18 15 12 9 6" />
                   </svg>
                 </div>

@@ -238,7 +238,7 @@ export default function NetworkGraph({
               key={m.questionId}
               onClick={() => { setFilterQId(m.questionId); tickRef.current = 0 }}
               className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
-                filterQId === m.questionId ? 'bg-indigo-600 text-white' : 'bg-white border border-gray-200 text-gray-600 hover:border-indigo-300 hover:text-indigo-600'
+                filterQId === m.questionId ? 'bg-brand-600 text-white' : 'bg-white border border-gray-200 text-gray-600 hover:border-brand-300 hover:text-brand-600'
               }`}
             >
               Q{i + 1}

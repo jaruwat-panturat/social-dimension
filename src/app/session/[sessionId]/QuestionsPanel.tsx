@@ -88,7 +88,7 @@ export default function QuestionsPanel({ sessionId, initialQuestions, onCountCha
         </div>
         <button
           onClick={openInput}
-          className="text-sm bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-medium px-3 py-2 rounded-lg transition-colors"
+          className="text-sm bg-brand-50 hover:bg-brand-100 text-brand-600 font-medium px-3 py-2 rounded-lg transition-colors"
         >
           + Add
         </button>
@@ -116,12 +116,12 @@ export default function QuestionsPanel({ sessionId, initialQuestions, onCountCha
                   onChange={e => setEditText(e.target.value)}
                   onBlur={() => saveEdit(q.id)}
                   onKeyDown={e => handleEditKeyDown(e, q.id)}
-                  className="flex-1 text-sm px-2 py-1 border border-indigo-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                  className="flex-1 text-sm px-2 py-1 border border-brand-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-300"
                   autoFocus
                 />
               ) : (
                 <span
-                  className="text-sm text-gray-800 flex-1 cursor-pointer hover:text-indigo-600 transition-colors"
+                  className="text-sm text-gray-800 flex-1 cursor-pointer hover:text-brand-600 transition-colors"
                   onClick={() => startEdit(q)}
                   title="Click to edit"
                 >
@@ -133,7 +133,7 @@ export default function QuestionsPanel({ sessionId, initialQuestions, onCountCha
                 {editingId !== q.id && (
                   <button
                     onClick={() => startEdit(q)}
-                    className="text-gray-300 hover:text-indigo-400 transition-colors p-0.5"
+                    className="text-gray-300 hover:text-brand-400 transition-colors p-0.5"
                     title="Edit question"
                   >
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -166,12 +166,12 @@ export default function QuestionsPanel({ sessionId, initialQuestions, onCountCha
             onChange={e => setNewText(e.target.value)}
             onKeyDown={e => e.key === 'Escape' && (setShowInput(false), setNewText(''))}
             placeholder="e.g. How well do you know this person?"
-            className="flex-1 text-sm px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:border-indigo-400 placeholder-gray-300 transition-colors"
+            className="flex-1 text-sm px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:border-brand-400 placeholder-gray-300 transition-colors"
           />
           <button
             type="submit"
             disabled={!newText.trim()}
-            className="bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-200 disabled:text-gray-400 text-white font-semibold px-4 py-2 rounded-xl text-sm transition-colors"
+            className="bg-brand-600 hover:bg-brand-700 disabled:bg-gray-200 disabled:text-gray-400 text-white font-semibold px-4 py-2 rounded-xl text-sm transition-colors"
           >
             Add
           </button>

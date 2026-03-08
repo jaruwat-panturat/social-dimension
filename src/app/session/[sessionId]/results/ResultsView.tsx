@@ -43,7 +43,7 @@ export default function ResultsView({ matrices }: { matrices: QuestionMatrix[] }
             onClick={() => setView(v.id)}
             className={`flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-medium transition-colors ${
               view === v.id
-                ? 'bg-indigo-600 text-white shadow-sm'
+                ? 'bg-brand-600 text-white shadow-sm'
                 : 'text-gray-500 hover:text-gray-700'
             }`}
           >

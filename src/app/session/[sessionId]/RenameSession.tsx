@@ -44,7 +44,7 @@ export default function RenameSession({ sessionId, initialName }: { sessionId: s
           onBlur={save}
           onKeyDown={handleKeyDown}
           disabled={saving}
-          className="font-semibold text-gray-900 text-sm bg-white border border-indigo-400 rounded-lg px-2 py-0.5 focus:outline-none focus:ring-2 focus:ring-indigo-300 min-w-0 w-48"
+          className="font-semibold text-gray-900 text-sm bg-white border border-brand-400 rounded-lg px-2 py-0.5 focus:outline-none focus:ring-2 focus:ring-brand-300 min-w-0 w-48"
           autoFocus
         />
       </>
@@ -56,7 +56,7 @@ export default function RenameSession({ sessionId, initialName }: { sessionId: s
       <span className="font-semibold text-gray-900 text-sm truncate">{name}</span>
       <button
         onClick={startEdit}
-        className="text-gray-300 hover:text-indigo-500 transition-colors shrink-0"
+        className="text-gray-300 hover:text-brand-500 transition-colors shrink-0"
         title="Rename session"
       >
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

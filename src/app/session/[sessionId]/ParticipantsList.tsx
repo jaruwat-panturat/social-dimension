@@ -132,7 +132,7 @@ export default function ParticipantsList({
               {completedCount}/{participants.length}
             </span>
           )}
-          <span className="text-sm font-semibold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full">
+          <span className="text-sm font-semibold text-brand-600 bg-brand-50 px-3 py-1 rounded-full">
             {participants.length}
           </span>
         </div>
@@ -157,8 +157,8 @@ export default function ParticipantsList({
                   newIds.has(p.id) ? 'bg-green-50 border border-green-200' : 'bg-gray-50'
                 }`}
               >
-                <div className="w-7 h-7 rounded-full bg-indigo-100 flex items-center justify-center shrink-0">
-                  <span className="text-xs font-bold text-indigo-600">{p.name.charAt(0).toUpperCase()}</span>
+                <div className="w-7 h-7 rounded-full bg-brand-100 flex items-center justify-center shrink-0">
+                  <span className="text-xs font-bold text-brand-600">{p.name.charAt(0).toUpperCase()}</span>
                 </div>
                 <span className="text-sm font-medium text-gray-800 flex-1">{p.name}</span>
 

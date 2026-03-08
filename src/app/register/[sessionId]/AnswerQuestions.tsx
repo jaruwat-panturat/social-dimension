@@ -166,7 +166,7 @@ export default function AnswerQuestions({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-16">
-        <div className="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
+        <div className="w-8 h-8 border-4 border-brand-200 border-t-brand-600 rounded-full animate-spin" />
       </div>
     )
   }
@@ -183,7 +183,7 @@ export default function AnswerQuestions({
         <p className="text-gray-400 text-sm mb-5">There was a problem fetching the session data.</p>
         <button
           onClick={() => window.location.reload()}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-5 py-2.5 rounded-xl text-sm transition-colors"
+          className="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-5 py-2.5 rounded-xl text-sm transition-colors"
         >
           Refresh
         </button>
@@ -221,7 +221,7 @@ export default function AnswerQuestions({
                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Q{i + 1}</p>
                   <button
                     onClick={() => { setDone(false); goToQuestion(i) }}
-                    className="text-xs text-indigo-500 hover:text-indigo-700 font-medium shrink-0"
+                    className="text-xs text-brand-500 hover:text-brand-700 font-medium shrink-0"
                   >
                     Edit
                   </button>
@@ -239,9 +239,9 @@ export default function AnswerQuestions({
           })}
         </div>
 
-        <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 text-sm text-indigo-700">
+        <div className="bg-brand-50 border border-brand-100 rounded-2xl p-4 text-sm text-brand-700">
           <p className="font-medium mb-0.5">Sit tight, {participantName}</p>
-          <p className="text-indigo-400 text-xs">The facilitator will present the results shortly</p>
+          <p className="text-brand-400 text-xs">The facilitator will present the results shortly</p>
         </div>
       </div>
     )
@@ -260,7 +260,7 @@ export default function AnswerQuestions({
         <div className="flex justify-between items-center text-xs text-gray-400 mb-2">
           <span className="font-medium">
             Question {currentIndex + 1} of {questions.length}
-            {isEditing && <span className="ml-1.5 text-indigo-500">(editing)</span>}
+            {isEditing && <span className="ml-1.5 text-brand-500">(editing)</span>}
           </span>
           <span className={selected.length === 3 ? 'font-semibold' : ''}>
             {selected.length === 0 && <span className="text-gray-400">– picked</span>}
@@ -276,7 +276,7 @@ export default function AnswerQuestions({
         </div>
         <div className="w-full bg-gray-100 rounded-full h-1.5">
           <div
-            className="bg-indigo-600 h-1.5 rounded-full transition-all duration-300"
+            className="bg-brand-600 h-1.5 rounded-full transition-all duration-300"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -319,7 +319,7 @@ export default function AnswerQuestions({
                   ? rankStyle.card
                   : isDisabled
                   ? 'border-gray-100 bg-gray-50 text-gray-300 cursor-not-allowed'
-                  : 'border-gray-200 bg-white text-gray-700 hover:border-indigo-300 hover:bg-indigo-50'
+                  : 'border-gray-200 bg-white text-gray-700 hover:border-brand-300 hover:bg-brand-50'
               }`}
             >
               <div
@@ -358,7 +358,7 @@ export default function AnswerQuestions({
         <button
           onClick={handleSubmit}
           disabled={selected.length !== 3 || submitting}
-          className="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 rounded-2xl text-base transition-colors flex items-center justify-center gap-2"
+          className="flex-1 bg-brand-600 hover:bg-brand-700 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 rounded-2xl text-base transition-colors flex items-center justify-center gap-2"
         >
           {submitting ? (
             <div className="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin" />

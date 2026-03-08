@@ -1,5 +1,19 @@
 @import "tailwindcss";
 
+@theme {
+  /* Brand CI color: #e86643 — replaces indigo throughout the app */
+  --color-brand-50:  #fef4f0;
+  --color-brand-100: #fde2d6;
+  --color-brand-200: #fbc1a6;
+  --color-brand-300: #f39e7a;
+  --color-brand-400: #ed7e54;
+  --color-brand-500: #e86643;
+  --color-brand-600: #e86643;
+  --color-brand-700: #c4502c;
+  --color-brand-800: #9e3d1d;
+  --color-brand-900: #7a2c11;
+}
+
 html, body {
   max-width: 100vw;
   overflow-x: hidden;

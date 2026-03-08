@@ -17,7 +17,7 @@ export default function DemoPage() {
         <div className="space-y-4">
           <Link
             href={`/session/${mockSessionId}/qr`}
-            className="block w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-lg text-center transition-colors"
+            className="block w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-3 px-4 rounded-lg text-center transition-colors"
           >
             📱 View QR Code Page
           </Link>

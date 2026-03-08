@@ -12,7 +12,7 @@ export default function SessionQRPage() {
   const registrationUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/register/${sessionId}`;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center p-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-brand-100 flex flex-col items-center justify-center p-8">
       <div className="bg-white rounded-2xl shadow-2xl p-12 max-w-2xl w-full text-center">
         {/* Session Info */}
         <div className="mb-8">
@@ -72,7 +72,7 @@ export default function SessionQRPage() {
               document.documentElement.requestFullscreen();
             }
           }}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition-colors"
+          className="bg-brand-600 hover:bg-brand-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition-colors"
         >
           ⛶ Fullscreen
         </button>

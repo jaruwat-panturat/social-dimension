@@ -156,7 +156,7 @@ export default function RegisterForm({ session }: { session: Session }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-16">
-        <div className="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
+        <div className="w-8 h-8 border-4 border-brand-200 border-t-brand-600 rounded-full animate-spin" />
       </div>
     )
   }
@@ -224,13 +224,13 @@ export default function RegisterForm({ session }: { session: Session }) {
               value={renameValue}
               onChange={(e) => setRenameValue(e.target.value)}
               onKeyDown={(e) => e.key === 'Escape' && setRenaming(false)}
-              className="text-center text-base font-semibold border-2 border-indigo-400 rounded-xl px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+              className="text-center text-base font-semibold border-2 border-brand-400 rounded-xl px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-300"
               autoFocus
             />
             <button
               type="submit"
               disabled={loading || !renameValue.trim()}
-              className="text-xs bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-200 disabled:text-gray-400 text-white font-semibold px-3 py-1.5 rounded-xl transition-colors"
+              className="text-xs bg-brand-600 hover:bg-brand-700 disabled:bg-gray-200 disabled:text-gray-400 text-white font-semibold px-3 py-1.5 rounded-xl transition-colors"
             >
               Save
             </button>
@@ -264,7 +264,7 @@ export default function RegisterForm({ session }: { session: Session }) {
                 setRenameValue(participantName)
                 setRenaming(true)
               }}
-              className="text-gray-300 hover:text-indigo-500 transition-colors"
+              className="text-gray-300 hover:text-brand-500 transition-colors"
               title="Change your name"
             >
               <svg
@@ -290,15 +290,15 @@ export default function RegisterForm({ session }: { session: Session }) {
           </div>
         )}
 
-        <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 text-sm text-indigo-700">
+        <div className="bg-brand-50 border border-brand-100 rounded-2xl p-4 text-sm text-brand-700">
           <div className="flex items-center justify-center gap-2 mb-1">
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500" />
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-500" />
             </span>
             <p className="font-medium">Waiting for the session to start</p>
           </div>
-          <p className="text-indigo-400 text-xs">This page will update automatically</p>
+          <p className="text-brand-400 text-xs">This page will update automatically</p>
         </div>
       </div>
     )
@@ -319,7 +319,7 @@ export default function RegisterForm({ session }: { session: Session }) {
           placeholder="Your full name"
           autoFocus
           required
-          className="w-full px-4 py-4 text-lg border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-indigo-500 transition-colors placeholder-gray-300"
+          className="w-full px-4 py-4 text-lg border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-brand-500 transition-colors placeholder-gray-300"
         />
       </div>
 
@@ -332,7 +332,7 @@ export default function RegisterForm({ session }: { session: Session }) {
       <button
         type="submit"
         disabled={loading || !name.trim()}
-        className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 rounded-2xl text-base transition-colors"
+        className="w-full bg-brand-600 hover:bg-brand-700 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 rounded-2xl text-base transition-colors"
       >
         {loading ? 'Joining...' : 'Join Session'}
       </button>

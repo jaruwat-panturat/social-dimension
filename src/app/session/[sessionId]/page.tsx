@@ -67,8 +67,8 @@ export default async function SessionPage({
               <div key={step.key} className="flex items-center flex-1">
                 <div className="flex flex-col items-center">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
-                    i < currentStep ? 'bg-indigo-600 text-white' :
-                    i === currentStep ? 'bg-indigo-600 text-white ring-4 ring-indigo-100' :
+                    i < currentStep ? 'bg-brand-600 text-white' :
+                    i === currentStep ? 'bg-brand-600 text-white ring-4 ring-brand-100' :
                     'bg-gray-100 text-gray-400'
                   }`}>
                     {i < currentStep ? (
@@ -77,12 +77,12 @@ export default async function SessionPage({
                       </svg>
                     ) : i + 1}
                   </div>
-                  <span className={`text-xs mt-1.5 font-medium whitespace-nowrap ${i <= currentStep ? 'text-indigo-600' : 'text-gray-400'}`}>
+                  <span className={`text-xs mt-1.5 font-medium whitespace-nowrap ${i <= currentStep ? 'text-brand-600' : 'text-gray-400'}`}>
                     {step.label}
                   </span>
                 </div>
                 {i < STEPS.length - 1 && (
-                  <div className={`flex-1 h-0.5 mx-2 mb-5 ${i < currentStep ? 'bg-indigo-600' : 'bg-gray-200'}`} />
+                  <div className={`flex-1 h-0.5 mx-2 mb-5 ${i < currentStep ? 'bg-brand-600' : 'bg-gray-200'}`} />
                 )}
               </div>
             ))}
@@ -102,7 +102,7 @@ export default async function SessionPage({
             <Link
               href={`/session/${session.id}/qr`}
               target="_blank"
-              className="shrink-0 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition-colors"
+              className="shrink-0 bg-brand-600 hover:bg-brand-700 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition-colors"
             >
               Show QR
             </Link>
@@ -113,11 +113,11 @@ export default async function SessionPage({
         {session.status === 'closed' && (
           <Link
             href={`/session/${session.id}/results`}
-            className="flex items-center justify-between bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl px-6 py-4 transition-colors"
+            className="flex items-center justify-between bg-brand-600 hover:bg-brand-700 text-white rounded-2xl px-6 py-4 transition-colors"
           >
             <div>
               <p className="font-semibold">Session Results</p>
-              <p className="text-indigo-200 text-xs mt-0.5">View the sociometric matrix</p>
+              <p className="text-brand-200 text-xs mt-0.5">View the sociometric matrix</p>
             </div>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="5" y1="12" x2="19" y2="12" />
