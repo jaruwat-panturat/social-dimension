@@ -91,26 +91,28 @@ export default async function SessionPage({
           </div>
         </div>
 
-        {/* Registration link */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-6">
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex-1 min-w-0">
-              <h2 className="font-semibold text-gray-900 mb-1">Registration Link</h2>
-              <p className="text-xs text-gray-400 mb-3">Participants scan the QR code or visit this link to join</p>
-              <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
-                <p className="text-xs font-mono text-gray-600 break-all flex-1">{registrationUrl}</p>
-                <CopyButton text={registrationUrl} />
+        {/* Registration link — hidden once session is closed */}
+        {session.status !== 'closed' && (
+          <div className="bg-white rounded-2xl border border-gray-200 p-6">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1 min-w-0">
+                <h2 className="font-semibold text-gray-900 mb-1">Registration Link</h2>
+                <p className="text-xs text-gray-400 mb-3">Participants scan the QR code or visit this link to join</p>
+                <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+                  <p className="text-xs font-mono text-gray-600 break-all flex-1">{registrationUrl}</p>
+                  <CopyButton text={registrationUrl} />
+                </div>
               </div>
+              <Link
+                href={`/session/${session.id}/qr`}
+                target="_blank"
+                className="shrink-0 bg-brand-600 hover:bg-brand-700 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition-colors"
+              >
+                Show QR
+              </Link>
             </div>
-            <Link
-              href={`/session/${session.id}/qr`}
-              target="_blank"
-              className="shrink-0 bg-brand-600 hover:bg-brand-700 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition-colors"
-            >
-              Show QR
-            </Link>
           </div>
-        </div>
+        )}
 
         {/* View Results (only when closed) */}
         {session.status === 'closed' && (

@@ -19,6 +19,7 @@ export default async function SessionQRPage({
     .single()
 
   if (error || !session) notFound()
+  if (session.status === 'closed') notFound()
 
   const { data: participants } = await supabase
     .from('participants')
