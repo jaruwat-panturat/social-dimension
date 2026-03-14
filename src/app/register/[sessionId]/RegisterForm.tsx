@@ -16,7 +16,7 @@ const storageKey = (sessionId: string) => `participant_${sessionId}`
 
 export default function RegisterForm({ session }: { session: Session }) {
   const [name, setName] = useState('')
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false) // form actions only
   const [error, setError] = useState<string | null>(null)
   const [participantId, setParticipantId] = useState<string | null>(null)
   const [participantName, setParticipantName] = useState('')
@@ -24,11 +24,13 @@ export default function RegisterForm({ session }: { session: Session }) {
   const [renameValue, setRenameValue] = useState('')
   const [renameError, setRenameError] = useState<string | null>(null)
   const [sessionStatus, setSessionStatus] = useState(session.status)
+  // undefined = still verifying, true = verified, false = not valid
+  const [verified, setVerified] = useState<boolean | undefined>(undefined)
 
   useEffect(() => {
     const storedId = localStorage.getItem(storageKey(session.id))
     if (!storedId) {
-      setLoading(false)
+      setVerified(false)
       return
     }
 
@@ -44,7 +46,7 @@ export default function RegisterForm({ session }: { session: Session }) {
           setParticipantId(data.id)
           setParticipantName(data.name)
         }
-        setLoading(false)
+        setVerified(!!data)
       })
   }, [session.id])
 
@@ -153,7 +155,7 @@ export default function RegisterForm({ session }: { session: Session }) {
     setLoading(false)
   }
 
-  if (loading) {
+  if (verified === undefined) {
     return (
       <div className="flex items-center justify-center py-16">
         <div className="w-8 h-8 border-4 border-brand-200 border-t-brand-600 rounded-full animate-spin" />
