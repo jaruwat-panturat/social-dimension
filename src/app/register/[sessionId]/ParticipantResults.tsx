@@ -7,10 +7,10 @@ interface QuestionResult {
   id: string
   question_text: string
   order_index: number
-  top3_results: { name: string }[]
+  top3_results: { name: string; rank: number }[]
 }
 
-const medals = ['🥇', '🥈', '🥉']
+const medals: Record<number, string> = { 1: '🥇', 2: '🥈', 3: '🥉' }
 
 export default function ParticipantResults({ sessionId }: { sessionId: string }) {
   const [questions, setQuestions] = useState<QuestionResult[] | null>(null)
@@ -64,7 +64,7 @@ export default function ParticipantResults({ sessionId }: { sessionId: string })
                     key={i}
                     className="flex items-center gap-3 bg-white rounded-xl px-4 py-3 shadow-sm"
                   >
-                    <span className="text-xl w-7 shrink-0">{medals[i]}</span>
+                    <span className="text-xl w-7 shrink-0">{medals[entry.rank] ?? medals[i + 1]}</span>
                     <span className="font-medium text-gray-800">{entry.name}</span>
                   </div>
                 ))}

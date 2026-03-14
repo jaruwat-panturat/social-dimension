@@ -86,10 +86,24 @@ export async function updateSessionStatus(sessionId: string, status: string) {
                 if (a.selected_participant_3) scores.set(a.selected_participant_3, (scores.get(a.selected_participant_3) ?? 0) + 1)
               })
 
-            const top3 = Array.from(scores.entries())
+            const sortedEntries = Array.from(scores.entries())
               .sort((a, b) => b[1] - a[1])
-              .slice(0, 3)
-              .map(([id]) => ({ name: participantMap.get(id) ?? 'Unknown' }))
+
+            // Standard competition ranking: ties share the same rank,
+            // next rank skips over the tied count.
+            // Only include entries where rank <= 3.
+            const top3: { name: string; rank: number }[] = []
+            let position = 1
+            let i = 0
+            while (i < sortedEntries.length && position <= 3) {
+              const score = sortedEntries[i][1]
+              const tiedGroup = sortedEntries.filter(([, s]) => s === score)
+              tiedGroup.forEach(([id]) => {
+                top3.push({ name: participantMap.get(id) ?? 'Unknown', rank: position })
+              })
+              position += tiedGroup.length
+              i += tiedGroup.length
+            }
 
             await supabase
               .from('questions')
