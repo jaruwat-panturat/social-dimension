@@ -36,8 +36,8 @@ export default async function FacilitatorParticipantViewPage({
         <p className="text-brand-200 text-sm mt-1">Workshop Session</p>
       </div>
 
-      <div className="flex-1 bg-white rounded-t-3xl px-6 pt-8 pb-10">
-        <ParticipantResults sessionId={session.id} />
+      <div className="flex-1 bg-white rounded-t-3xl px-8 pt-8 pb-10">
+        <ParticipantResults sessionId={session.id} columns={3} />
       </div>
     </main>
   )

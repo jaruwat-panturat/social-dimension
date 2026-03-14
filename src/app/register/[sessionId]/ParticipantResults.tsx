@@ -12,7 +12,7 @@ interface QuestionResult {
 
 const medals: Record<number, string> = { 1: '🥇', 2: '🥈', 3: '🥉' }
 
-export default function ParticipantResults({ sessionId }: { sessionId: string }) {
+export default function ParticipantResults({ sessionId, columns = 1 }: { sessionId: string; columns?: 1 | 3 }) {
   const [questions, setQuestions] = useState<QuestionResult[] | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -47,7 +47,7 @@ export default function ParticipantResults({ sessionId }: { sessionId: string })
         <p className="text-gray-400 text-sm">Top picks from your group</p>
       </div>
 
-      <div className="space-y-5">
+      <div className={columns === 3 ? 'grid grid-cols-3 gap-4' : 'space-y-5'}>
         {questions?.map((q, qi) => (
           <div key={q.id} className="bg-gray-50 rounded-2xl p-5">
             <p className="text-xs font-semibold text-brand-500 uppercase tracking-wider mb-1">
