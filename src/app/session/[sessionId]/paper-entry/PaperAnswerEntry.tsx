@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { recomputeTop3 } from '../actions'
 
@@ -32,26 +33,25 @@ export default function PaperAnswerEntry({
   sessionStatus: string
   participants: Participant[]
   questions: Question[]
-  initialParticipantId?: string
+  initialParticipantId: string
 }) {
   const [selectedParticipant, setSelectedParticipant] = useState<Participant | null>(null)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [saved, setSaved] = useState<Record<string, string[]>>({})
   const [selected, setSelected] = useState<string[]>([])
   const [submitting, setSubmitting] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [done, setDone] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Auto-select participant if provided via URL
   useEffect(() => {
-    if (!initialParticipantId) return
     const p = participants.find(x => x.id === initialParticipantId)
-    if (p) handleSelectParticipant(p)
+    if (p) loadParticipant(p)
+    else setLoading(false)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  async function handleSelectParticipant(p: Participant) {
+  async function loadParticipant(p: Participant) {
     setLoading(true)
     const supabase = createClient()
     const { data: existing } = await supabase
@@ -129,7 +129,6 @@ export default function PaperAnswerEntry({
 
     const allAnswered = questions.every(q => newSaved[q.id])
     if (allAnswered) {
-      // Only recompute top3 when session is already closed
       if (sessionStatus === 'closed') {
         await recomputeTop3(sessionId)
       }
@@ -150,27 +149,16 @@ export default function PaperAnswerEntry({
     )
   }
 
-  // ── Participant picker ──────────────────────────────────────────────────────
   if (!selectedParticipant) {
     return (
-      <div className="bg-white rounded-2xl border border-gray-200 p-6">
-        <h2 className="font-semibold text-gray-900 mb-1">Select participant</h2>
-        <p className="text-sm text-gray-400 mb-5">Choose whose answers you want to enter.</p>
-        <ul className="space-y-2">
-          {participants.map(p => (
-            <li key={p.id}>
-              <button
-                onClick={() => handleSelectParticipant(p)}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-50 hover:bg-brand-50 hover:border-brand-200 border border-transparent transition-colors text-left"
-              >
-                <div className="w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center shrink-0">
-                  <span className="text-xs font-bold text-brand-600">{p.name.charAt(0).toUpperCase()}</span>
-                </div>
-                <span className="text-sm font-medium text-gray-800">{p.name}</span>
-              </button>
-            </li>
-          ))}
-        </ul>
+      <div className="bg-white rounded-2xl border border-gray-200 p-6 text-center">
+        <p className="text-gray-400 text-sm mb-4">Participant not found.</p>
+        <Link
+          href={`/session/${sessionId}`}
+          className="text-brand-600 hover:text-brand-700 font-semibold text-sm"
+        >
+          ← Back to session
+        </Link>
       </div>
     )
   }
@@ -190,12 +178,20 @@ export default function PaperAnswerEntry({
         <p className="text-gray-400 text-sm mb-6">
           Answers for <span className="font-semibold text-gray-700">{selectedParticipant.name}</span> have been recorded.
         </p>
-        <button
-          onClick={() => { setSelectedParticipant(null); setSaved({}); setSelected([]) }}
-          className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold px-4 py-2.5 rounded-xl text-sm transition-colors"
-        >
-          Enter for another participant
-        </button>
+        <div className="flex gap-3 justify-center">
+          <button
+            onClick={() => { setDone(false); goToQuestion(0) }}
+            className="bg-brand-50 hover:bg-brand-100 text-brand-700 font-semibold px-4 py-2.5 rounded-xl text-sm transition-colors"
+          >
+            Edit answers
+          </button>
+          <Link
+            href={`/session/${sessionId}`}
+            className="inline-block bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold px-4 py-2.5 rounded-xl text-sm transition-colors"
+          >
+            ← Back to session
+          </Link>
+        </div>
       </div>
     )
   }
@@ -210,14 +206,14 @@ export default function PaperAnswerEntry({
     <div className="bg-white rounded-2xl border border-gray-200 p-6">
       {/* Participant header */}
       <div className="flex items-center gap-2 mb-5 pb-5 border-b border-gray-100">
-        <button
-          onClick={() => { setSelectedParticipant(null); setSaved({}); setSelected([]) }}
+        <Link
+          href={`/session/${sessionId}`}
           className="text-gray-400 hover:text-gray-600 transition-colors"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
           </svg>
-        </button>
+        </Link>
         <div className="w-7 h-7 rounded-full bg-brand-100 flex items-center justify-center shrink-0">
           <span className="text-xs font-bold text-brand-600">{selectedParticipant.name.charAt(0).toUpperCase()}</span>
         </div>

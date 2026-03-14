@@ -24,6 +24,7 @@ export default async function PaperEntryPage({
 
   if (!session) notFound()
   if (session.status !== 'started' && session.status !== 'closed') redirect(`/session/${sessionId}`)
+  if (!initialParticipantId) redirect(`/session/${sessionId}`)
 
   const [{ data: participants }, { data: questions }] = await Promise.all([
     supabase
