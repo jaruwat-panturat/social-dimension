@@ -113,8 +113,7 @@ All people need to register by just puting their name as free text. (similar to 
    - Facilitator can select one or more templates from the picker
    - Selecting a template adds it as a new question to the session (with its text pre-filled)
    - The added question is editable — facilitator can modify the text after importing
-   - If a template is already added to the session, it is shown as dimmed/checked in the picker so the facilitator knows it is already included (but can still be added again if needed)
-   - The picker is a modal/drawer overlay; closing it returns to the Questions panel
+   -The picker is a modal/drawer overlay; closing it returns to the Questions panel
    - Custom question entry (free-text) remains available alongside template selection
 
    **Template library management (admin only):**
@@ -125,7 +124,7 @@ All people need to register by just puting their name as free text. (similar to 
    - No public-facing admin UI needed in initial scope; direct Supabase dashboard access is acceptable as a fallback
 
    **Data model:**
-   - Table: `question_templates(id UUID PK, question_text TEXT NOT NULL, category TEXT NOT NULL, is_active BOOLEAN DEFAULT true, order_index INTEGER, created_at TIMESTAMPTZ)`
+   - Table: `question_templates(id UUID PK, question_text TEXT NOT NULL, category TEXT NOT NULL, is_active BOOLEAN DEFAULT true, created_at TIMESTAMPTZ)`
    - RLS: all authenticated users can read active templates; only admin role can insert/update/delete
    - No FK to sessions — templates are a shared library independent of any session
 

@@ -198,6 +198,7 @@ export async function addParticipant(sessionId: string, name: string) {
   return data as { id: string; name: string; registered_at: string }
 }
 
+
 export async function recomputeTop3(sessionId: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

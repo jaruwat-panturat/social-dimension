@@ -230,7 +230,7 @@ export default function AnswerQuestions({
                 <div className="flex flex-col gap-1">
                   {pickNames.map((name, rank) => (
                     <span key={rank} className={`text-xs font-semibold ${ORDINAL_COLORS[rank]}`}>
-                      {['1st', '2nd', '3rd'][rank]} — {name}
+                      {['1', '2', '3'][rank]} — {name}
                     </span>
                   ))}
                 </div>
@@ -266,9 +266,9 @@ export default function AnswerQuestions({
             {selected.length === 0 && <span className="text-gray-400">– picked</span>}
             {selected.length > 0 && (
               <span className="flex items-center gap-1">
-                {selected.length >= 1 && <span className="text-amber-500 font-semibold">1st</span>}
-                {selected.length >= 2 && <><span className="text-gray-300">·</span><span className="text-slate-500 font-semibold">2nd</span></>}
-                {selected.length >= 3 && <><span className="text-gray-300">·</span><span className="text-orange-700 font-semibold">3rd</span></>}
+                {selected.length >= 1 && <span className="text-amber-500 font-semibold">1</span>}
+                {selected.length >= 2 && <><span className="text-gray-300">·</span><span className="text-slate-500 font-semibold">2</span></>}
+                {selected.length >= 3 && <><span className="text-gray-300">·</span><span className="text-orange-700 font-semibold">3</span></>}
                 <span className="text-gray-400 font-normal ml-0.5">picked</span>
               </span>
             )}
@@ -303,9 +303,9 @@ export default function AnswerQuestions({
           const isDisabled = !isSelected && selected.length >= 3
 
           const RANKS = [
-            { label: '1st', badge: 'bg-amber-400 text-white',  card: 'border-amber-400 bg-amber-50 text-amber-800' },
-            { label: '2nd', badge: 'bg-slate-400 text-white',  card: 'border-slate-400 bg-slate-50 text-slate-700' },
-            { label: '3rd', badge: 'bg-orange-700 text-white', card: 'border-orange-700 bg-orange-50 text-orange-900' },
+            { label: '1', badge: 'bg-amber-400 text-white',  card: 'border-amber-400 bg-amber-50 text-amber-800' },
+            { label: '2', badge: 'bg-slate-400 text-white',  card: 'border-slate-400 bg-slate-50 text-slate-700' },
+            { label: '3', badge: 'bg-orange-700 text-white', card: 'border-orange-700 bg-orange-50 text-orange-900' },
           ]
           const rankStyle = isSelected ? RANKS[rank] : null
 
