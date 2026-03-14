@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
+import { notFound } from 'next/navigation'
 import AnswerQuestions from './AnswerQuestions'
 
 interface Session {
@@ -203,15 +204,7 @@ export default function RegisterForm({ session }: { session: Session }) {
         </div>
       )
     }
-    return (
-      <div className="text-center py-12">
-        <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4 text-3xl">
-          🔒
-        </div>
-        <h2 className="text-xl font-bold text-gray-900 mb-2">Session is closed</h2>
-        <p className="text-gray-400 text-sm">This session has ended.</p>
-      </div>
-    )
+    notFound()
   }
 
   // Registered, waiting for session to start

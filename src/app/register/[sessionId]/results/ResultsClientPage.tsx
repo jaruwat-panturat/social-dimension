@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { notFound } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 import ParticipantResults from '../ParticipantResults'
 
 export default function ResultsClientPage({
@@ -10,15 +12,27 @@ export default function ResultsClientPage({
   sessionId: string
   sessionStatus: string
 }) {
-  const [participantId, setParticipantId] = useState<string | null | undefined>(undefined)
+  // undefined = still verifying, true = verified, false = not valid
+  const [verified, setVerified] = useState<boolean | undefined>(undefined)
 
   useEffect(() => {
-    const stored = localStorage.getItem(`participant_${sessionId}`)
-    setParticipantId(stored ?? null)
+    const storedId = localStorage.getItem(`participant_${sessionId}`)
+    if (!storedId) {
+      setVerified(false)
+      return
+    }
+
+    const supabase = createClient()
+    supabase
+      .from('participants')
+      .select('id')
+      .eq('id', storedId)
+      .eq('session_id', sessionId)
+      .single()
+      .then(({ data }) => setVerified(!!data))
   }, [sessionId])
 
-  // Still reading localStorage
-  if (participantId === undefined) {
+  if (verified === undefined) {
     return (
       <div className="flex items-center justify-center py-16">
         <div className="w-8 h-8 border-4 border-brand-200 border-t-brand-600 rounded-full animate-spin" />
@@ -38,16 +52,8 @@ export default function ResultsClientPage({
     )
   }
 
-  if (!participantId) {
-    return (
-      <div className="text-center py-12">
-        <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4 text-3xl">
-          🔒
-        </div>
-        <h2 className="text-xl font-bold text-gray-900 mb-2">Results are private</h2>
-        <p className="text-gray-400 text-sm">Only participants who joined this session can view the results.</p>
-      </div>
-    )
+  if (!verified) {
+    notFound()
   }
 
   return <ParticipantResults sessionId={sessionId} />
