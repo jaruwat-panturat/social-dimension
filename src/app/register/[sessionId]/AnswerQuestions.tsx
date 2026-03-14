@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 
 interface Question {
@@ -242,13 +241,7 @@ export default function AnswerQuestions({
 
         <div className="bg-brand-50 border border-brand-100 rounded-2xl p-4 text-sm text-brand-700">
           <p className="font-medium mb-0.5">Sit tight, {participantName}</p>
-          <p className="text-brand-400 text-xs mb-3">The facilitator will present the results shortly</p>
-          <Link
-            href={`/register/${sessionId}/results`}
-            className="inline-block bg-brand-600 hover:bg-brand-700 text-white font-semibold px-4 py-2 rounded-xl text-xs transition-colors"
-          >
-            View Results →
-          </Link>
+          <p className="text-brand-400 text-xs">The facilitator will present the results shortly</p>
         </div>
       </div>
     )
