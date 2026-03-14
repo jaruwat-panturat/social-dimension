@@ -101,14 +101,41 @@ All people need to register by just puting their name as free text. (similar to 
    - Acceptance criteria: Add/edit/delete/reorder questions, questions saved to session, changes blocked after session starts
    - Priority: High
 
-8. **Question Templates**
-   - System provides a library of predefined question templates
-   - Templates stored in database for easy management
-   - Facilitators can browse and select templates when setting up questions
-   - Facilitators can use template as-is or edit before adding to session
-   - Admin can manage (add/edit/delete) templates
-   - Templates categorized by type (e.g., leadership, communication, teamwork)
-   - Acceptance criteria: Template library accessible, can select and add to session, admin can manage templates
+8. **Pre-defined Question Templates**
+   - System provides a curated library of predefined question templates authored by the MasterPeace team
+   - Templates are stored in a `question_templates` database table
+   - Each template has: question text, category tag, and an active/inactive flag
+   - Templates are grouped by category (e.g., Leadership, Communication, Teamwork, Trust, Energy)
+
+   **Facilitator — browsing & selecting templates:**
+   - In the Questions panel (before session starts), a "Browse templates" button opens a template picker
+   - The picker displays all active templates, grouped by category
+   - Facilitator can select one or more templates from the picker
+   - Selecting a template adds it as a new question to the session (with its text pre-filled)
+   - The added question is editable — facilitator can modify the text after importing
+   - If a template is already added to the session, it is shown as dimmed/checked in the picker so the facilitator knows it is already included (but can still be added again if needed)
+   - The picker is a modal/drawer overlay; closing it returns to the Questions panel
+   - Custom question entry (free-text) remains available alongside template selection
+
+   **Template library management (admin only):**
+   - Templates are managed by a privileged admin role, not regular facilitators
+   - Admin can create, edit, and soft-delete (deactivate) templates
+   - Deactivated templates are hidden from facilitators but not deleted from the database
+   - Admin UI lives at `/admin/templates` (auth-gated to admin role)
+   - No public-facing admin UI needed in initial scope; direct Supabase dashboard access is acceptable as a fallback
+
+   **Data model:**
+   - Table: `question_templates(id UUID PK, question_text TEXT NOT NULL, category TEXT NOT NULL, is_active BOOLEAN DEFAULT true, order_index INTEGER, created_at TIMESTAMPTZ)`
+   - RLS: all authenticated users can read active templates; only admin role can insert/update/delete
+   - No FK to sessions — templates are a shared library independent of any session
+
+   **Acceptance criteria:**
+   - Template picker is accessible from the Questions panel (registration_open state only)
+   - All active templates are listed, grouped by category
+   - Selecting a template appends it to the session's question list
+   - Added template question can be edited or deleted like any custom question
+   - Templates that are inactive are not shown to facilitators
+   - Admin can toggle a template's active status
    - Priority: Medium
 
 9. **Participant Assessment (Core Feature)**
@@ -202,7 +229,7 @@ All people need to register by just puting their name as free text. (similar to 
 - Session name/title
 - Created by (facilitator)
 - Created date/time
-- Status (created/registration_open/started/closed)
+- Status (registration_open/started/closed)
 - QR code URL
 - Questions (4-5 questions)
 
@@ -309,6 +336,32 @@ All people need to register by just puting their name as free text. (similar to 
 - Progressive enhancement approach
 - Tailwind CSS utility-first styling for consistent cross-browser design
 
+## Offline / Paper Fallback
+
+### Context
+Some participants may be unable to use the app during the workshop (device issues, no smartphone, connectivity problems). These participants complete the assessment on paper. The facilitator registers them manually so they are fully part of the session — appearing as answer options for all other participants — and later enters their paper answers into the system on their behalf.
+
+### User Stories
+- As a facilitator, I want to manually register a paper participant during the registration phase, so that they appear as an answer option for all other participants.
+- As a facilitator, I want to enter a paper participant's answers on their behalf after the session ends, so that their responses are included in the session results.
+
+### Requirements
+
+#### Registration (available from `registration_open` state)
+- Facilitator can add a participant by name directly from the session management page (same as any other registration)
+- The paper participant is indistinguishable from digital participants — they appear in everyone else's answer options
+- No special flag or marker needed on the participant record
+
+#### Answer Entry (available from `closed` state)
+- Facilitator selects which registered participant's answers to enter
+- For each question, the facilitator selects the participant's 1st, 2nd, and 3rd choices — same interface as the normal participant assessment
+- Submitted answers are stored identically to digital submissions
+- After all answers are submitted, `top3_results` is recomputed so results reflect the newly added data
+- Acceptance criteria: Facilitator registers paper participant during registration; after session closes, facilitator enters all answers for that participant; results update after submission
+- Priority: Medium
+
+---
+
 ## Future Considerations
 - Export results to CSV/Excel with raw data
 - Export visualizations as images (PNG/PDF)
@@ -372,11 +425,12 @@ Tracks what has been built and any implementation-specific decisions made during
 - After all questions answered: "All done!" completion screen
 
 ### Pending / Not Yet Implemented
-- Question template library (Feature #8)
+- Pre-defined question template library (Feature #8) — `question_templates` table, template picker in QuestionsPanel, admin management UI
 - Answer review & editing after submission (Feature #10)
 - Completion tracking for facilitator — who has/hasn't submitted (Feature #11)
 - Results: 2D sociometric matrix (Feature #12)
 - Results: Relationship network graph (Feature #13)
+- **Participant results summary** (post-close): once a session is closed, participants see a limited results view — top 3 selected participants per question, without revealing who selected them
 
 ---
 
@@ -389,5 +443,5 @@ Tracks what has been built and any implementation-specific decisions made during
 - Multi-language support (English only initially)
 - Participant-to-participant communication
 - Content management for workshop materials
-- **Participant access to results** (only facilitator can see aggregated results)
+- **Participant access to facilitator-level results** (who selected whom, full matrices, and relationship graphs are facilitator-only)
 - Public results sharing or leaderboards
