@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import Link from 'next/link'
 import AnswerQuestions from './AnswerQuestions'
 
 interface Session {
@@ -41,8 +42,6 @@ export default function RegisterForm({ session }: { session: Session }) {
         if (data) {
           setParticipantId(data.id)
           setParticipantName(data.name)
-        } else {
-          localStorage.removeItem(storageKey(session.id))
         }
         setLoading(false)
       })
@@ -187,6 +186,23 @@ export default function RegisterForm({ session }: { session: Session }) {
 
   // Session closed
   if (sessionStatus === 'closed') {
+    if (participantId) {
+      return (
+        <div className="text-center py-12">
+          <div className="w-16 h-16 rounded-full bg-amber-50 flex items-center justify-center mx-auto mb-4 text-3xl">
+            🏆
+          </div>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">Session has ended</h2>
+          <p className="text-gray-400 text-sm mb-6">The facilitator has closed the session.</p>
+          <Link
+            href={`/register/${session.id}/results`}
+            className="inline-block bg-brand-600 hover:bg-brand-700 text-white font-bold px-6 py-3 rounded-2xl text-sm transition-colors"
+          >
+            View Results
+          </Link>
+        </div>
+      )
+    }
     return (
       <div className="text-center py-12">
         <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4 text-3xl">

@@ -52,6 +52,55 @@ export async function updateSessionStatus(sessionId: string, status: string) {
     .update({ status })
     .eq('id', sessionId)
 
+  // When closing, precompute top-3 per question and store on the question row
+  if (status === 'closed') {
+    const { data: questions } = await supabase
+      .from('questions')
+      .select('id')
+      .eq('session_id', sessionId)
+
+    if (questions?.length) {
+      const questionIds = questions.map(q => q.id)
+
+      const { data: answers } = await supabase
+        .from('answers')
+        .select('question_id, selected_participant_1, selected_participant_2, selected_participant_3')
+        .in('question_id', questionIds)
+
+      const { data: participants } = await supabase
+        .from('participants')
+        .select('id, name')
+        .eq('session_id', sessionId)
+
+      if (answers && participants) {
+        const participantMap = new Map(participants.map(p => [p.id, p.name]))
+
+        await Promise.all(
+          questions.map(async (question) => {
+            const scores = new Map<string, number>()
+            answers
+              .filter(a => a.question_id === question.id)
+              .forEach(a => {
+                if (a.selected_participant_1) scores.set(a.selected_participant_1, (scores.get(a.selected_participant_1) ?? 0) + 3)
+                if (a.selected_participant_2) scores.set(a.selected_participant_2, (scores.get(a.selected_participant_2) ?? 0) + 2)
+                if (a.selected_participant_3) scores.set(a.selected_participant_3, (scores.get(a.selected_participant_3) ?? 0) + 1)
+              })
+
+            const top3 = Array.from(scores.entries())
+              .sort((a, b) => b[1] - a[1])
+              .slice(0, 3)
+              .map(([id]) => ({ name: participantMap.get(id) ?? 'Unknown' }))
+
+            await supabase
+              .from('questions')
+              .update({ top3_results: top3 })
+              .eq('id', question.id)
+          })
+        )
+      }
+    }
+  }
+
   revalidatePath(`/session/${sessionId}`)
 }
 

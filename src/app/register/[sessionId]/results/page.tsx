@@ -1,8 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
-import RegisterForm from './RegisterForm'
+import ResultsClientPage from './ResultsClientPage'
 
-export default async function RegisterPage({
+export default async function ParticipantResultsPage({
   params,
 }: {
   params: Promise<{ sessionId: string }>
@@ -10,26 +10,27 @@ export default async function RegisterPage({
   const { sessionId } = await params
   const supabase = await createClient()
 
-  const { data: session } = await supabase
+  const { data: session, error } = await supabase
     .from('sessions')
     .select('id, name, status')
     .eq('id', sessionId)
     .single()
 
-  if (!session) notFound()
+  if (error || !session) notFound()
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-brand-600 to-brand-800 flex flex-col">
-      {/* Top brand bar */}
       <div className="px-6 pt-8 pb-6 text-center">
         <p className="text-brand-200 text-xs font-medium uppercase tracking-widest mb-3">Sociometry</p>
         <h1 className="text-2xl font-bold text-white">{session.name}</h1>
         <p className="text-brand-200 text-sm mt-1">Workshop Session</p>
       </div>
 
-      {/* Card */}
       <div className="flex-1 bg-white rounded-t-3xl px-6 pt-8 pb-10">
-        <RegisterForm session={session} />
+        <ResultsClientPage
+          sessionId={session.id}
+          sessionStatus={session.status}
+        />
       </div>
     </main>
   )
