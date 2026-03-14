@@ -1,7 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import { addParticipant, renameParticipant } from './actions'
 
 interface Participant {
   id: string
@@ -25,6 +27,11 @@ export default function ParticipantsList({
   const [participants, setParticipants] = useState(initialParticipants)
   const [newIds, setNewIds] = useState<Set<string>>(new Set())
   const [answerCounts, setAnswerCounts] = useState<Record<string, number>>({})
+  const [addName, setAddName] = useState('')
+  const [adding, setAdding] = useState(false)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editName, setEditName] = useState('')
+  const [saving, setSaving] = useState(false)
 
   // Subscribe to new participants joining
   useEffect(() => {
@@ -110,6 +117,32 @@ export default function ParticipantsList({
     return () => { supabase.removeChannel(channel) }
   }, [status, participants.length, sessionId])
 
+  function startEdit(p: { id: string; name: string }) {
+    setEditingId(p.id)
+    setEditName(p.name)
+  }
+
+  async function handleRename(e: React.FormEvent, participantId: string) {
+    e.preventDefault()
+    const name = editName.trim()
+    if (!name || saving) return
+    setSaving(true)
+    await renameParticipant(participantId, name)
+    setParticipants(prev => prev.map(p => p.id === participantId ? { ...p, name } : p))
+    setEditingId(null)
+    setSaving(false)
+  }
+
+  async function handleAdd(e: React.FormEvent) {
+    e.preventDefault()
+    const name = addName.trim()
+    if (!name || adding) return
+    setAdding(true)
+    await addParticipant(sessionId, name)
+    setAddName('')
+    setAdding(false)
+  }
+
   const isStarted = status === 'started'
   const completedCount = isStarted
     ? participants.filter(p => (answerCounts[p.id] ?? 0) >= questionCount).length
@@ -160,23 +193,57 @@ export default function ParticipantsList({
                 <div className="w-7 h-7 rounded-full bg-brand-100 flex items-center justify-center shrink-0">
                   <span className="text-xs font-bold text-brand-600">{p.name.charAt(0).toUpperCase()}</span>
                 </div>
-                <span className="text-sm font-medium text-gray-800 flex-1">{p.name}</span>
+
+                {editingId === p.id ? (
+                  <form onSubmit={e => handleRename(e, p.id)} className="flex-1 flex gap-1.5">
+                    <input
+                      autoFocus
+                      type="text"
+                      value={editName}
+                      onChange={e => setEditName(e.target.value)}
+                      onKeyDown={e => e.key === 'Escape' && setEditingId(null)}
+                      className="flex-1 text-sm border border-brand-300 rounded-lg px-2 py-0.5 outline-none focus:ring-2 focus:ring-brand-100"
+                    />
+                    <button type="submit" disabled={!editName.trim() || saving} className="text-xs text-brand-600 font-semibold disabled:opacity-40">
+                      {saving ? '…' : 'Save'}
+                    </button>
+                    <button type="button" onClick={() => setEditingId(null)} className="text-xs text-gray-400">
+                      Cancel
+                    </button>
+                  </form>
+                ) : (
+                  <span
+                    className="text-sm font-medium text-gray-800 flex-1 cursor-pointer hover:text-brand-600 transition-colors"
+                    onClick={() => startEdit(p)}
+                    title="Click to rename"
+                  >
+                    {p.name}
+                  </span>
+                )}
 
                 {isStarted ? (
-                  completed ? (
-                    <span className="flex items-center gap-1 text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                      Done
-                    </span>
-                  ) : inProgress ? (
-                    <span className="text-xs font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">
-                      {count}/{questionCount}
-                    </span>
-                  ) : (
-                    <span className="text-xs text-gray-300">waiting</span>
-                  )
+                  <>
+                    {completed ? (
+                      <span className="flex items-center gap-1 text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                        Done
+                      </span>
+                    ) : inProgress ? (
+                      <span className="text-xs font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">
+                        {count}/{questionCount}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-gray-300">waiting</span>
+                    )}
+                    <Link
+                      href={`/session/${sessionId}/paper-entry?for=${p.id}`}
+                      className="text-xs text-brand-500 hover:text-brand-700 font-medium transition-colors"
+                    >
+                      Enter answers
+                    </Link>
+                  </>
                 ) : (
                   <span className="text-xs text-gray-400">#{i + 1}</span>
                 )}
@@ -184,6 +251,25 @@ export default function ParticipantsList({
             )
           })}
         </ul>
+      )}
+
+      {status === 'registration_open' && (
+        <form onSubmit={handleAdd} className="mt-3 flex gap-2">
+          <input
+            type="text"
+            value={addName}
+            onChange={e => setAddName(e.target.value)}
+            placeholder="Add participant by name"
+            className="flex-1 text-sm border border-gray-200 rounded-xl px-3 py-2 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+          />
+          <button
+            type="submit"
+            disabled={!addName.trim() || adding}
+            className="bg-brand-600 hover:bg-brand-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold px-4 py-2 rounded-xl text-sm transition-colors"
+          >
+            {adding ? '…' : 'Add'}
+          </button>
+        </form>
       )}
     </div>
   )

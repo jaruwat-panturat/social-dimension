@@ -3,6 +3,69 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function computeTop3ForSession(supabase: any, sessionId: string) {
+  const { data: questions } = await supabase
+    .from('questions')
+    .select('id')
+    .eq('session_id', sessionId)
+
+  if (!questions?.length) return
+
+  const questionIds = questions.map((q: { id: string }) => q.id)
+
+  const [{ data: answers }, { data: participants }] = await Promise.all([
+    supabase
+      .from('answers')
+      .select('question_id, selected_participant_1, selected_participant_2, selected_participant_3')
+      .in('question_id', questionIds),
+    supabase
+      .from('participants')
+      .select('id, name')
+      .eq('session_id', sessionId),
+  ])
+
+  if (!answers || !participants) return
+
+  const participantMap = new Map<string, string>(
+    (participants as { id: string; name: string }[]).map(p => [p.id, p.name])
+  )
+
+  await Promise.all(
+    questions.map(async (question: { id: string }) => {
+      const scores = new Map<string, number>()
+      answers
+        .filter((a: { question_id: string }) => a.question_id === question.id)
+        .forEach((a: { selected_participant_1: string | null; selected_participant_2: string | null; selected_participant_3: string | null }) => {
+          if (a.selected_participant_1) scores.set(a.selected_participant_1, (scores.get(a.selected_participant_1) ?? 0) + 3)
+          if (a.selected_participant_2) scores.set(a.selected_participant_2, (scores.get(a.selected_participant_2) ?? 0) + 2)
+          if (a.selected_participant_3) scores.set(a.selected_participant_3, (scores.get(a.selected_participant_3) ?? 0) + 1)
+        })
+
+      const sortedEntries = Array.from(scores.entries())
+        .sort((a, b) => b[1] - a[1])
+
+      const top3: { name: string; rank: number }[] = []
+      let position = 1
+      let i = 0
+      while (i < sortedEntries.length && position <= 3) {
+        const score = sortedEntries[i][1]
+        const tiedGroup = sortedEntries.filter(([, s]) => s === score)
+        tiedGroup.forEach(([id]) => {
+          top3.push({ name: participantMap.get(id) ?? 'Unknown', rank: position })
+        })
+        position += tiedGroup.length
+        i += tiedGroup.length
+      }
+
+      await supabase
+        .from('questions')
+        .update({ top3_results: top3 })
+        .eq('id', question.id)
+    })
+  )
+}
+
 export async function renameSession(sessionId: string, name: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -54,65 +117,7 @@ export async function updateSessionStatus(sessionId: string, status: string) {
 
   // When closing, precompute top-3 per question and store on the question row
   if (status === 'closed') {
-    const { data: questions } = await supabase
-      .from('questions')
-      .select('id')
-      .eq('session_id', sessionId)
-
-    if (questions?.length) {
-      const questionIds = questions.map(q => q.id)
-
-      const { data: answers } = await supabase
-        .from('answers')
-        .select('question_id, selected_participant_1, selected_participant_2, selected_participant_3')
-        .in('question_id', questionIds)
-
-      const { data: participants } = await supabase
-        .from('participants')
-        .select('id, name')
-        .eq('session_id', sessionId)
-
-      if (answers && participants) {
-        const participantMap = new Map(participants.map(p => [p.id, p.name]))
-
-        await Promise.all(
-          questions.map(async (question) => {
-            const scores = new Map<string, number>()
-            answers
-              .filter(a => a.question_id === question.id)
-              .forEach(a => {
-                if (a.selected_participant_1) scores.set(a.selected_participant_1, (scores.get(a.selected_participant_1) ?? 0) + 3)
-                if (a.selected_participant_2) scores.set(a.selected_participant_2, (scores.get(a.selected_participant_2) ?? 0) + 2)
-                if (a.selected_participant_3) scores.set(a.selected_participant_3, (scores.get(a.selected_participant_3) ?? 0) + 1)
-              })
-
-            const sortedEntries = Array.from(scores.entries())
-              .sort((a, b) => b[1] - a[1])
-
-            // Standard competition ranking: ties share the same rank,
-            // next rank skips over the tied count.
-            // Only include entries where rank <= 3.
-            const top3: { name: string; rank: number }[] = []
-            let position = 1
-            let i = 0
-            while (i < sortedEntries.length && position <= 3) {
-              const score = sortedEntries[i][1]
-              const tiedGroup = sortedEntries.filter(([, s]) => s === score)
-              tiedGroup.forEach(([id]) => {
-                top3.push({ name: participantMap.get(id) ?? 'Unknown', rank: position })
-              })
-              position += tiedGroup.length
-              i += tiedGroup.length
-            }
-
-            await supabase
-              .from('questions')
-              .update({ top3_results: top3 })
-              .eq('id', question.id)
-          })
-        )
-      }
-    }
+    await computeTop3ForSession(supabase, sessionId)
   }
 
   revalidatePath(`/session/${sessionId}`)
@@ -165,4 +170,39 @@ export async function deleteQuestion(questionId: string) {
     .from('questions')
     .delete()
     .eq('id', questionId)
+}
+
+export async function renameParticipant(participantId: string, name: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Unauthorized')
+
+  await supabase
+    .from('participants')
+    .update({ name })
+    .eq('id', participantId)
+}
+
+export async function addParticipant(sessionId: string, name: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Unauthorized')
+
+  const { data, error } = await supabase
+    .from('participants')
+    .insert({ session_id: sessionId, name })
+    .select('id, name, registered_at')
+    .single()
+
+  if (error || !data) throw new Error('Failed to add participant')
+  return data as { id: string; name: string; registered_at: string }
+}
+
+export async function recomputeTop3(sessionId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Unauthorized')
+
+  await computeTop3ForSession(supabase, sessionId)
+  revalidatePath(`/session/${sessionId}`)
 }

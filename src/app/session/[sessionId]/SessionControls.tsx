@@ -35,8 +35,8 @@ export default function SessionControls({ sessionId, initialStatus, questionCoun
       {busy && <LoadingOverlay />}
       <h2 className="font-semibold text-gray-900 mb-4">Session Controls</h2>
       {actions.length === 0 ? (
-        <div className="flex items-center gap-3">
-          <p className="text-sm text-gray-400">This session is closed. No further actions available.</p>
+        <div className="flex flex-wrap items-center gap-3">
+          <p className="text-sm text-gray-400">This session is closed.</p>
           <Link
             href={`/session/${sessionId}/participant-view`}
             className="inline-flex items-center gap-1.5 bg-brand-600 hover:bg-brand-700 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition-colors"
